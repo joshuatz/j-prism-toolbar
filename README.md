@@ -11,3 +11,9 @@ Then adding the toolbar is as simple as:
 ````
 (new PrismToolbar('pre')).autoInit();
 ````
+###
+---
+### Notes:
+ -  Almost all classes are prefixed with "j" (just like the repo) to avoid conflicts with other libraries or stylesheets.
+ -  Certain buttons try to use icons, but will fallback gracefully depending on what you have installed. It will try font-awesome -> materializecss -> fallback
+ -  For the "copy-to-clipboard" feature, it will try to use ClipboardJS, but if it is not available within the global window scope, it will fall back to just selecting the text and letting the user either right click or use CTRL+C.
