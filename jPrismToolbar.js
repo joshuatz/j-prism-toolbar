@@ -277,7 +277,8 @@ var PrismToolbar = (function(){
                     codeElem : elem,
                     toolbarElem : toolbarElem,
                     collapsed : false,
-                    copyButton : copyButton
+                    copyButton : copyButton,
+                    clipboardInitialized : false
                 });
             }.bind(this));
 
@@ -286,9 +287,12 @@ var PrismToolbar = (function(){
 
             // Init ClipboardJS
             if (this.getHasClipboardJS()===true){
-                this.iterator('copyButton',function(copyButton){
-                    this.ClipboardJSInstance = new ClipboardJS(copyButton);
-                }.bind(this));
+                this.initClipboardJS();
+            }
+            else {
+                setTimeout(function(){
+                    this.initClipboardJS();
+                }.bind(this),2000);
             }
         }
         else {
@@ -300,6 +304,20 @@ var PrismToolbar = (function(){
         this.selector = 'pre > code[class*="language-"]';
         this.useParent = true;
         this.init();
+    };
+    PrismToolbarConstructor.prototype.initClipboardJS = function(){
+        this.iterator(null,function(instance){
+            if (instance.clipboardInitialized===false && this.getHasClipboardJS()===true){
+                instance.ClipboardJSInstance = new ClipboardJS(instance.copyButton);
+                instance.ClipboardJSInstance.on('success',function(e){
+                    console.log(e);
+                });
+                instance.ClipboardJSInstance.on('error',function(e){
+                    console.warn('issue with ClipboardJS');
+                    console.warn(e);
+                });
+            }
+        }.bind(this));
     };
     PrismToolbarConstructor.prototype.destroy = function(){
         //@TODO
