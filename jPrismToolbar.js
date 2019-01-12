@@ -89,11 +89,14 @@ var PrismToolbar = (function(){
                 'height: auto;' +
                 'position: relative;' +
             '}' +
-            '.jRightSide {' +
+            '.jToolbarWrapper .jRightSide {' +
                 'position: absolute;' +
                 'right: 10px;' +
                 'top: 10px;' +
                 'min-width: 120px;' +
+                'max-width: 50%;' +
+            '}' +
+            '.jToolbarWrapper .leftSide {' +
                 'max-width: 50%;' +
             '}' +
             '.prismToolbarToggleCollapse[data-collapsed=\'false\'] .isCollapsed {' +
@@ -123,7 +126,7 @@ var PrismToolbar = (function(){
                 'width: 100%;' +
                 'height: 100%;' +
             '}' +
-            '.jAutoCenterParent {' +
+            '.jPrismToolbarStyled .jAutoCenterParent {' +
                 'position: relative;' +
             '}' +
             '.jAutoCenterChild, .jAutoCenterParent > * {' +
@@ -136,28 +139,28 @@ var PrismToolbar = (function(){
                 'width: 100%;' +
                 'height: 100%;' +
             '}' +
-            '.jCopyButton .jFallback {' +
+            '.jPrismToolbarStyled .jCopyButton .jFallback {' +
                 'font-size: 1rem;' +
             '}' +
-            '.jIconsSolidBackground {' +
+            '.jPrismToolbarStyled .jIconsSolidBackground {' +
                 'background-color: white;' +
                 'color: black !important;' +
             '}' +
             '.jHasFallbackIcons > i, .jHasFallbackIcons > .jFallback, .jIconWrapper {' +
-                'position: absolute;' +
+                'position: absolute !important;' +
                 'width: 36px;' +
                 'height: 36px;' +
                 'text-align: center;' +
                 'font-size: large;' +
-                'top: 0px;' +
-                'left: 0px;' +
+                'top: 0px !important;' +
+                'left: 0px !important;' +
                 
             '}' +
             '.prismToolbarToggleCollapse {' +
                 'display: inline-block;' +
                 'cursor: pointer;' +
             '}' +
-            '.jCopyButton {' +
+            '.jPrismToolbarStyled .jCopyButton {' +
                 'cursor: copy;' +
             '}' +
             '.jFullscreenWrapper {' +
@@ -170,7 +173,7 @@ var PrismToolbar = (function(){
                 'left: 0px;' +
                 'max-width: 100%;' +
             '}' +
-            '.jCodeWrapper {' +
+            '.jFullscreenWrapper .jCodeWrapper {' +
                 'height: 94%;' +
             '}' +
             '.jFullscreenToolbar {' +
@@ -194,13 +197,10 @@ var PrismToolbar = (function(){
                 'width: 100%;' +
                 'height: 100%;' +
             '}' +
-            '.leftSide {' +
-                'max-width: 50%;' +
-            '}' +
             '.jMessageWrapper {' +
                 'width: auto;' +
             '}' +
-            '.jMessage {' +
+            '.jPrismToolbarStyled .jMessage {' +
                 'margin-left: 10px;' +
                 'margin-top: 3px;' +
                 'font-family: monospace;' +
@@ -243,7 +243,7 @@ var PrismToolbar = (function(){
                 }
                 // Now, in this context, elem is the code element (pre usually)
                 var toolbarElem = document.createElement('div');
-                toolbarElem.className = 'jToolbarWrapper';
+                toolbarElem.className = 'jToolbarWrapper jPrismToolbarStyled';
                 toolbarElem.innerHTML = getToolbarHtml();
 
                 // Check to see if <pre></pre> is already wrapped with toolbar wrapper - if not, wrap it
@@ -369,7 +369,7 @@ var PrismToolbar = (function(){
         if (instance.isMaximized!==true){
             // Construct a fullscreen wrapper
             var fullscreenWrapper = document.createElement('div');
-            fullscreenWrapper.className = 'jFullscreenWrapper';
+            fullscreenWrapper.className = 'jFullscreenWrapper jPrismToolbarStyled';
             // Create toolbar
             fullscreenWrapper.innerHTML = '' +
                 '<div class="jFullscreenToolbar">' +
