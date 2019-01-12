@@ -177,10 +177,19 @@ var PrismToolbar = (function(){
             '}' +
             '.jFullscreenWrapper .jCodeWrapper {' +
                 'height: 94%;' +
+                'width: 100%;' +
             '}' +
             '.jFullscreenToolbar {' +
                 'width: 100%;' +
                 'min-height: 6%;' +
+                'background-color: black;' +
+            '}' +
+            '.jFullscreenToolbarButtonWrapper {' +
+                'text-align: center;' +
+                'width: 100%;' +
+                'min-height: 6%;' +
+                'padding-top: 2.5%;' +
+                'position: absolute;' +
                 'background-color: black;' +
             '}' +
             '.jFullscreenToolbarButton {' +
@@ -191,7 +200,8 @@ var PrismToolbar = (function(){
             '.jFullscreenWrapper .jCodeWrapper > * {' +
                 'border: 2px solid white;' +
                 'width: 96% !important;' +
-                'height : 93% !important;' +
+                'height : auto !important;' +
+                'max-height: 93% !important;' +
                 'overflow-y: scroll;' +
                 'margin: 0px;' +
             '}' +
@@ -393,7 +403,7 @@ var PrismToolbar = (function(){
             // Create toolbar
             fullscreenWrapper.innerHTML = '' +
                 '<div class="jFullscreenToolbar">' +
-                    '<div style="float:right; margin-right:14px;">' +
+                    '<div class="jFullscreenToolbarButtonWrapper">' +
                         '<div class="jFullscreenToolbarButton jCloseButton">X</div>' +
                     '</div>' +
                 '</div>';
