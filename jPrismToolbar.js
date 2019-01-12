@@ -10,33 +10,35 @@ var PrismToolbar = (function(){
     * Private Functions
     */
     function getToolbarHtml(){
+        function getFallbackButtonCode(fallbackText){
+            return (
+                '<div class="jAutoCenterParent jIconWrapper jIconsSolidBackground">' +
+                    '<div class="jFallback">' + fallbackText + '</div>' +
+                '</div>'
+            );
+        }
+        function getThirdPartyIconCode(innerIconCode){
+            return (
+                '<div class="jAutoCenterParent jIconWrapper jIconsSolidBackground">' +
+                    innerIconCode +
+                '</div>'
+            );
+        }
         var copyButtonCode = '' +
         '<div class="jToolbarButton jCopyButton jHasFallbackIcons jShadowLight">' +
             // Fallback
-            '<div class="jAutoCenterParent jIconWrapper jIconsSolidBackground">' +
-                '<div class="jFallback">Copy</div>' +
-            '</div>' +
+            getFallbackButtonCode('copy') +
             // Third Party Icons
-            '<div class="jAutoCenterParent jIconWrapper jIconsSolidBackground">' +
-                '<i class="material-icons left">content_copy</i>' +
-            '</div>' +
-            '<div class="jAutoCenterParent jIconWrapper jIconsSolidBackground">' +
-                '<i class="fa fa-clone jIconsSolidBackground" aria-hidden="true"></i>' +
-            '</div>' +
+            getThirdPartyIconCode('<i class="material-icons left">content_copy</i>') +
+            getThirdPartyIconCode('<i class="fa fa-clone jIconsSolidBackground" aria-hidden="true"></i>') +
         '</div>';
         var maximizeButtonCode = '' +
         '<div class="jToolbarButton jMaximizeButton jHasFallbackIcons jShadowLight">' +
             // Fallback
-            '<div class="jAutoCenterParent jIconWrapper jIconsSolidBackground">' +
-                '<div class="jFallback">Max</div>' +
-            '</div>' +
+            getFallbackButtonCode('max') +
             // Third Party Icons
-            '<div class="jAutoCenterParent jIconWrapper jIconsSolidBackground">' +
-                '<i class="material-icons left">fullscreen</i>' +
-            '</div>' +
-            '<div class="jAutoCenterParent jIconWrapper jIconsSolidBackground">' +
-                '<i class="fa fa-search-plus jIconsSolidBackground" aria-hidden="true"></i>' +
-            '</div>' +
+            getThirdPartyIconCode('<i class="material-icons left">fullscreen</i>') +
+            getThirdPartyIconCode('<i class="fa fa-search-plus jIconsSolidBackground" aria-hidden="true"></i>') +
         '</div>';
         return (
             '<div class="jToolbar jShadow">' +
@@ -188,8 +190,8 @@ var PrismToolbar = (function(){
             '}' +
             '.jFullscreenWrapper .jCodeWrapper > * {' +
                 'border: 2px solid white;' +
-                'width: 96%;' +
-                'height : 93%;' +
+                'width: 96% !important;' +
+                'height : 93% !important;' +
                 'overflow-y: scroll;' +
                 'margin: 0px;' +
             '}' +
