@@ -105,7 +105,7 @@ var PrismToolbar = (function(){
                 'right: 10px;' +
                 'top: 10px;' +
                 'min-width: 120px;' +
-                'max-width: 50%;' +
+                'max-width: 80%;' +
             '}' +
             '.jToolbarWrapper .leftSide {' +
                 'max-width: 50%;' +
