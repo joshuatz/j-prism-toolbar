@@ -25,7 +25,7 @@ var PrismToolbar = (function(){
             );
         }
         var lineWrapButtonCode = '' +
-        '<div class="jToolbarButton jToolbarButtonShowPointer jLineWrapButton jHasFallbackIcons jShadowLight">' +
+        '<div class="jToolbarButton jToolbarButtonShowPointer jLineWrapButton jHasFallbackIcons jShadowLight" title="Toggle Line Wrap">' +
             // Fallback
             getFallbackButtonCode('break') +
             // Third Party Icons
@@ -33,7 +33,7 @@ var PrismToolbar = (function(){
             getThirdPartyIconCode('<i class="material-icons left">wrap_text</i>') +
         '</div>';
         var copyButtonCode = '' +
-        '<div class="jToolbarButton jCopyButton jHasFallbackIcons jShadowLight">' +
+        '<div class="jToolbarButton jCopyButton jHasFallbackIcons jShadowLight" title="Copy code to clipboard">' +
             // Fallback
             getFallbackButtonCode('copy') +
             // Third Party Icons
@@ -41,7 +41,7 @@ var PrismToolbar = (function(){
             getThirdPartyIconCode('<i class="fa fa-clone jIconsSolidBackground" aria-hidden="true"></i>') +
         '</div>';
         var maximizeButtonCode = '' +
-        '<div class="jToolbarButton jToolbarButtonShowPointer jMaximizeButton jHasFallbackIcons jShadowLight">' +
+        '<div class="jToolbarButton jToolbarButtonShowPointer jMaximizeButton jHasFallbackIcons jShadowLight" title="Fullscreen code view">' +
             // Fallback
             getFallbackButtonCode('max') +
             // Third Party Icons
@@ -59,7 +59,7 @@ var PrismToolbar = (function(){
                     '<div class="jRightSide">' +
                         lineWrapButtonCode +
                         copyButtonCode +
-                        '<div class="prismToolbarToggleCollapse jToolbarButton jToolbarButtonShowPointer jShadowLight" data-collapsed="false">' +
+                        '<div class="prismToolbarToggleCollapse jToolbarButton jToolbarButtonShowPointer jShadowLight" data-collapsed="false" title="Toggle collapse of code embed">' +
                             '<div class="isNotCollapsed jAutoCenterParent"><div>-</div></div>' +
                             '<div class="isCollapsed jAutoCenterParent"><div>+</div></div>' +
                         '</div>' +
