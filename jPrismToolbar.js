@@ -24,6 +24,14 @@ var PrismToolbar = (function(){
                 '</div>'
             );
         }
+        var lineWrapButtonCode = '' +
+        '<div class="jToolbarButton jToolbarButtonShowPointer jLineWrapButton jHasFallbackIcons jShadowLight">' +
+            // Fallback
+            getFallbackButtonCode('break') +
+            // Third Party Icons
+            getThirdPartyIconCode('<i class="fa fa-outdent jIconsSolidBackground" aria-hidden="true"></i>') +
+            getThirdPartyIconCode('<i class="material-icons left">wrap_text</i>') +
+        '</div>';
         var copyButtonCode = '' +
         '<div class="jToolbarButton jCopyButton jHasFallbackIcons jShadowLight">' +
             // Fallback
@@ -33,7 +41,7 @@ var PrismToolbar = (function(){
             getThirdPartyIconCode('<i class="fa fa-clone jIconsSolidBackground" aria-hidden="true"></i>') +
         '</div>';
         var maximizeButtonCode = '' +
-        '<div class="jToolbarButton jMaximizeButton jHasFallbackIcons jShadowLight">' +
+        '<div class="jToolbarButton jToolbarButtonShowPointer jMaximizeButton jHasFallbackIcons jShadowLight">' +
             // Fallback
             getFallbackButtonCode('max') +
             // Third Party Icons
@@ -49,8 +57,9 @@ var PrismToolbar = (function(){
                         '</div>' +
                     '</div>' +
                     '<div class="jRightSide">' +
+                        lineWrapButtonCode +
                         copyButtonCode +
-                        '<div class="prismToolbarToggleCollapse jToolbarButton jShadowLight" data-collapsed="false">' +
+                        '<div class="prismToolbarToggleCollapse jToolbarButton jToolbarButtonShowPointer jShadowLight" data-collapsed="false">' +
                             '<div class="isNotCollapsed jAutoCenterParent"><div>-</div></div>' +
                             '<div class="isCollapsed jAutoCenterParent"><div>+</div></div>' +
                         '</div>' +
@@ -162,6 +171,9 @@ var PrismToolbar = (function(){
                 'display: inline-block;' +
                 'cursor: pointer;' +
             '}' +
+            '.jToolbarButtonShowPointer {' +
+                'cursor: pointer;' +
+            '}' +
             '.jPrismToolbarStyled .jCopyButton {' +
                 'cursor: copy;' +
             '}' +
@@ -225,6 +237,9 @@ var PrismToolbar = (function(){
             '}' +
             '.jFullscreenWrapper .jHidden, .jToolbarWrapper .jHidden {' +
                 'display: none !important;' +
+            '}' +
+            '.jCodeForceLineWrap, .jCodeForceLineWrap code {' +
+                'white-space: pre-wrap;' +
             '}'
         );
     }
@@ -283,15 +298,19 @@ var PrismToolbar = (function(){
                 }
                 copyButton.setAttribute('data-clipboard-target','#' + codeElemId);
 
-                // Save
-                this.domInstances.push({
+                // Wrap up all properties into a nice "instance" object
+                var currInstance = {
                     container : elem.parentNode,
                     codeElem : elem,
                     toolbarElem : toolbarElem,
                     collapsed : false,
                     copyButton : copyButton,
-                    clipboardInitialized : false
-                });
+                    clipboardInitialized : false,
+                    eventsAttached : false
+                };
+
+                // Save
+                this.domInstances.push(currInstance);
             }.bind(this));
 
             // Attach event listeners
@@ -389,7 +408,6 @@ var PrismToolbar = (function(){
             selectElementText(instance.codeElem,window);
             this.showMessage(instance,'Text is selected for easy copying!');
         }
-
     }
     PrismToolbarConstructor.prototype.getHasClipboardJS = function(){
         return typeof(window.ClipboardJS)==='function';
@@ -437,23 +455,46 @@ var PrismToolbar = (function(){
             instance.isMaximized = false;
         }
     };
+
+    /**
+     * Toggles line wrap for a specific prism instance
+     */
+    PrismToolbarConstructor.prototype.toggleLineWrap = function(instance){
+        instance.codeElem.classList.toggle('jCodeForceLineWrap');
+    };
+
+    /**
+     * Attaches event listeners to all instances that need them set up.
+     */
     PrismToolbarConstructor.prototype.attachEventListeners = function(){
         var _this = this;
         this.iterator(null,function(instance){
-            // -/+ collapse button
-            instance.container.querySelector('.prismToolbarToggleCollapse').addEventListener('click',function(evt){
-                _this.toggleCollapsed(instance);
-            });
-            // Copy button
-            instance.container.querySelector('.jCopyButton').addEventListener('click',function(evt){
-                _this.copyCode(instance);
-            });
-            // Maximize button
-            instance.container.querySelector('.jMaximizeButton').addEventListener('click',function(evt){
-                _this.toggleMaximize(instance);
-            });
+            if (instance.eventsAttached===false){
+                // Line wrap button
+                instance.container.querySelector('.jLineWrapButton').addEventListener('click',function(evt){
+                    _this.toggleLineWrap(instance);
+                });
+                // -/+ collapse button
+                instance.container.querySelector('.prismToolbarToggleCollapse').addEventListener('click',function(evt){
+                    _this.toggleCollapsed(instance);
+                });
+                // Copy button
+                instance.container.querySelector('.jCopyButton').addEventListener('click',function(evt){
+                    _this.copyCode(instance);
+                });
+                // Maximize button
+                instance.container.querySelector('.jMaximizeButton').addEventListener('click',function(evt){
+                    _this.toggleMaximize(instance);
+                });
+                instance.eventsAttached = true;
+            }
         });
     };
+    /**
+     * Iterates over all PrismToolbar "Instances" and passes an object representation of the instance to the callback
+     * @param {string} [OPT_SubItem] - The key of a specific object property you would like to get in the callback instead of the full object
+     * @param {function} callback - the function that will receive the instance
+     */
     PrismToolbarConstructor.prototype.iterator = function(OPT_SubItem,callback){
         for (var x=0; x<this.domInstances.length; x++){
             if (typeof(OPT_SubItem==='string') && OPT_SubItem in this.domInstances[x]){
