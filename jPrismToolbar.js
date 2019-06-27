@@ -245,36 +245,145 @@ var PrismToolbar = (function(){
     }
 
     /**
+     * Private members
+     */
+    var _inputSettings;
+    var _injectedStyles = false;
+
+    /**
     * Constructor and Public Functions
     */
-    function PrismToolbarConstructor(settings){
-        settings = (settings || {});
-        this.injectedStyles = false;
-        this.animate = typeof(settings.animate)==='boolean' ? settings.animate : true;
-        this.selector = typeof(settings.selector)==='string' ? settings.selector : '';
-        this.useParent = typeof(settings.useParent)==='boolean' ? settings.useParent : false;
+    function PrismToolbarConstructor(inputSettings){
+        _inputSettings = (inputSettings || {});
+        // Controls where the toolbar is injected and if your code should be wrapped and then toolbar injected - usually yes
         this.domInstances = [];
+        this.targetElementsArr = [];
+        this.selector = typeof(_inputSettings.selector)==='string' ? _inputSettings.selector : false;
+        this.settings = {
+            wrapCombo:  typeof(_inputSettings.wrapCombo)==='boolean' ? _inputSettings.wrapCombo : true,
+            animate: typeof(_inputSettings.animate)==='boolean' ? _inputSettings.animate : true,
+            lineWrap: typeof(_inputSettings.lineWrap)==='boolean' ? _inputSettings.lineWrap : false
+        }
+    }
+    /**
+     * Force jPrimsToolbar to evaluate inputs to determine which elements to target for adding the toolbar to
+     */
+    PrismToolbarConstructor.prototype.populateListOfTargets = function(){
+        // Reset
+        var _inputTargetElementsArr = [];
+        this.targetElementsArr = [];
+        // Check for single element or NodeList passed as target option
+        if (_inputSettings.targetElements && typeof(_inputSettings.targetElements.entries)==='function'){
+            // NodeList
+            _inputTargetElementsArr  = _inputSettings.targetElements;
+        }
+        else if (_inputSettings.targetElements && typeof(_inputSettings.targetElements.nodeName)==='string'){
+            // Single element
+            _inputTargetElementsArr  = [_inputSettings.targetElements];
+        }
+        else if (this.selector && typeof(this.selector)==='string'){
+            // String CSS selector
+            _inputTargetElementsArr = document.querySelectorAll(this.selector);
+        }
+        // Pre-filter targets
+        for (var x=0; x<_inputTargetElementsArr.length; x++){
+            var currTarget = _inputTargetElementsArr[x];
+            // preference is for <pre></pre>
+            if (currTarget.nodeName==='PRE'){
+                this.targetElementsArr.push(currTarget);
+            }
+            else if (currTarget.nodeName==='CODE' && currTarget.parentElement.nodeName==='PRE'){
+                this.targetElementsArr.push(currTarget.parentElement);
+            }
+            else {
+                // Invalid element passed
+            }
+        }
+    }
+    PrismToolbarConstructor.prototype.getPerInstanceConfig = function(element){
+        // Copy settings from main setup
+        var config = this.settings;
+        // let inline HTML attributes override settings
+        var allowedOverrides = [
+            {
+                attr: "data-linewrap",
+                setting: "lineWrap",
+                type: "boolean"
+            },
+            {
+                attr: "data-animate",
+                setting: "animate",
+                type: "boolean"
+            }
+        ]
+        // Pull from element itself or child
+        var elementsToPullFrom = [element];
+        if (element.childElementCount > 0){
+            elementsToPullFrom.push(element.children[0]);
+        }
+        for (var e=0; e<elementsToPullFrom.length; e++){
+            element = elementsToPullFrom[e];
+            for (var x=0; x<allowedOverrides.length; x++){
+                var mapping = allowedOverrides[x];
+                if (element.hasAttribute(mapping.attr) & element.getAttribute(mapping.attr)!==''){
+                    var rawVal = element.getAttribute(mapping.attr);
+                    var decodedVal;
+                    var block = false;
+                    if (mapping.type==='boolean'){
+                        decodedVal = (rawVal==='TRUE'||rawVal==='true') ? true : false;
+                    }
+                    if (mapping.type==='number'){
+                        try {
+                            decodedVal = parseFloat(rawVal);
+                        }
+                        catch(e){
+                            block = true;
+                        }
+                    }
+                    if (mapping.type==='object'){
+                        try {
+                            decodedVal = JSON.parse(rawVal);
+                        }
+                        catch(e){
+                            block = true;
+                        }
+                    }
+                    else {
+                        decodedVal = rawVal;
+                    }
+                    // Update setting
+                    if (!block){
+                        config[mapping.setting] = decodedVal;
+                    }
+                }
+            }
+        }
+        return config;
     }
     PrismToolbarConstructor.prototype.init = function(){
-        if (!this.injectedStyles){
-            var styleBlock = document.createElement('style');styleBlock.innerText = getToolbarCss();
-            document.getElementsByTagName('body')[0].appendChild(styleBlock);
-            this.injectedStyles = true;
-        }
-        if (this.selector && this.selector !== ''){
-            var counter = 0;
-            document.querySelectorAll(this.selector).forEach(function(elem){
-                counter++;
-                if (this.useParent){
-                    elem = elem.parentNode;
-                }
+        this.populateListOfTargets();
+        if (this.targetElementsArr.length > 0){
+            if (!_injectedStyles){
+                var styleBlock = document.createElement('style');
+                styleBlock.innerText = getToolbarCss();
+                document.getElementsByTagName('body')[0].appendChild(styleBlock);
+                _injectedStyles = true;
+            }
+            // Main toolbar injector iterator
+            for (var x=0; x<this.targetElementsArr.length; x++){
+
+                // Get per-instance config
+                var elem = this.targetElementsArr[x];
+                var config = this.getPerInstanceConfig(elem);
+
                 // Now, in this context, elem is the code element (pre usually)
                 var toolbarElem = document.createElement('div');
                 toolbarElem.className = 'jToolbarWrapper jPrismToolbarStyled';
                 toolbarElem.innerHTML = getToolbarHtml();
 
                 // Check to see if <pre></pre> is already wrapped with toolbar wrapper - if not, wrap it
-                if (!elem.parentNode.classList.contains('code-toolbar')){
+                // debugger;
+                if (!elem.parentNode.classList.contains('code-toolbar') && config.wrapCombo){
                     var wrapper = document.createElement('div');
                     wrapper.className = 'code-toolbar';
                     // Add the wrapper as a sibling, before, of the code container
@@ -286,17 +395,24 @@ var PrismToolbar = (function(){
                 elem.parentNode.insertBefore(toolbarElem,elem);
 
                 // Directly add transition CSS to elements
-                elem.style.webkitTransition = 'all 1s';
-                elem.style.transition = 'all 1s';
+                if (config.animate){
+                    elem.style.webkitTransition = 'all 1s';
+                    elem.style.transition = 'all 1s';
+                }
 
                 // Generate ID for code element and set as target of copy button
                 var codeElemId = elem.getAttribute('id');
                 var copyButton = toolbarElem.querySelector('.jCopyButton');
                 if (!codeElemId || codeElemId===''){
-                    codeElemId = 'jCodeElem_' + counter;
+                    codeElemId = 'jCodeElem_' + x;
                     elem.setAttribute('id',codeElemId);
                 }
                 copyButton.setAttribute('data-clipboard-target','#' + codeElemId);
+
+                // See if line-wrap should be turned on to start with
+                if (config.lineWrap){
+                    elem.classList.add('jCodeForceLineWrap');
+                }
 
                 // Wrap up all properties into a nice "instance" object
                 var currInstance = {
@@ -306,12 +422,13 @@ var PrismToolbar = (function(){
                     collapsed : false,
                     copyButton : copyButton,
                     clipboardInitialized : false,
-                    eventsAttached : false
+                    eventsAttached : false,
+                    config : config
                 };
 
                 // Save
                 this.domInstances.push(currInstance);
-            }.bind(this));
+            }
 
             // Attach event listeners
             this.attachEventListeners();
@@ -327,13 +444,13 @@ var PrismToolbar = (function(){
             }
         }
         else {
-            console.warn('init was called, but no selector given');
+            console.warn('init was called, but no suitable targets could be found');
         }
         return this;
     }
     PrismToolbarConstructor.prototype.autoInit = function(){
         this.selector = 'pre > code[class*="language-"]';
-        this.useParent = true;
+        this.settings.wrapCombo = false;
         this.init();
     };
     PrismToolbarConstructor.prototype.initClipboardJS = function(){
