@@ -25,7 +25,7 @@ var PrismToolbar = (function(){
             );
         }
         var lineWrapButtonCode = '' +
-        '<div class="jToolbarButton jToolbarButtonShowPointer jLineWrapButton jHasFallbackIcons jShadowLight" title="Toggle Line Wrap">' +
+        '<div class="jPrismToolbarToggleLineWrap jToolbarButton jToolbarButtonShowPointer jLineWrapButton jHasFallbackIcons jShadowLight" title="Toggle Line Wrap" data-linewrapon="false">' +
             // Fallback
             getFallbackButtonCode('break') +
             // Third Party Icons
@@ -51,7 +51,7 @@ var PrismToolbar = (function(){
         return (
             '<div class="jToolbar jShadow">' +
                 '<div class="jContent">' +
-                    '<div class="leftSide">' +
+                    '<div class="jLeftSide">' +
                         '<div class="jMessageWrapper">' +
                             '<div class="jMessage jHidden"></div>' +
                         '</div>' +
@@ -83,6 +83,7 @@ var PrismToolbar = (function(){
                 'position: relative;' +
                 'margin-left: 4px;' +
                 'overflow: hidden;' +
+                'margin-bottom: 6px;' +
             '}' +
             '.jToolbarWrapper {' +
                 'width: 100%;' +
@@ -107,7 +108,7 @@ var PrismToolbar = (function(){
                 'min-width: 120px;' +
                 'max-width: 80%;' +
             '}' +
-            '.jToolbarWrapper .leftSide {' +
+            '.jToolbarWrapper .jLeftSide {' +
                 'max-width: 50%;' +
             '}' +
             '.prismToolbarToggleCollapse[data-collapsed=\'false\'] .isCollapsed {' +
@@ -153,9 +154,17 @@ var PrismToolbar = (function(){
             '.jPrismToolbarStyled .jCopyButton .jFallback {' +
                 'font-size: 1rem;' +
             '}' +
+            '.jToolbarButton, .jPrismToolbarStyled .jIconsSolidBackground {' +
+                'webkitTransition: all 300ms;' +
+                'transition: all 300ms;' +
+            '}' +
             '.jPrismToolbarStyled .jIconsSolidBackground {' +
                 'background-color: white;' +
                 'color: black !important;' +
+            '}' +
+            '.jToolbarButton.justClicked .jIconsSolidBackground, .jToolbarButton.justClicked {' +
+                'background-color: black !important;' +
+                'color: white !important;' +
             '}' +
             '.jHasFallbackIcons > i, .jHasFallbackIcons > .jFallback, .jIconWrapper {' +
                 'position: absolute !important;' +
@@ -176,6 +185,9 @@ var PrismToolbar = (function(){
             '}' +
             '.jPrismToolbarStyled .jCopyButton {' +
                 'cursor: copy;' +
+            '}' +
+            '.jPrismToolbarToggleLineWrap[data-linewrapon="true"] .jIconsSolidBackground {' +
+                'background-color: #cfffcf;' +
             '}' +
             '.jFullscreenWrapper {' +
                 'width: 100%;' +
@@ -240,6 +252,14 @@ var PrismToolbar = (function(){
             '}' +
             '.jCodeForceLineWrap, .jCodeForceLineWrap code {' +
                 'white-space: pre-wrap;' +
+            '}' + 
+            '@media only screen and (max-width: 360px){' +
+                '.jToolbar {' +
+                    'min-height: 95px;' +
+                '}' +
+                '.jToolbarWrapper .jLeftSide {' +
+                    'display: none;' +
+                '}' +
             '}'
         );
     }
@@ -322,11 +342,11 @@ var PrismToolbar = (function(){
             elementsToPullFrom.push(element.children[0]);
         }
         for (var e=0; e<elementsToPullFrom.length; e++){
-            element = elementsToPullFrom[e];
+            var currElement = elementsToPullFrom[e];
             for (var x=0; x<allowedOverrides.length; x++){
                 var mapping = allowedOverrides[x];
-                if (element.hasAttribute(mapping.attr) & element.getAttribute(mapping.attr)!==''){
-                    var rawVal = element.getAttribute(mapping.attr);
+                if (currElement.hasAttribute(mapping.attr) & currElement.getAttribute(mapping.attr)!==''){
+                    var rawVal = currElement.getAttribute(mapping.attr);
                     var decodedVal;
                     var block = false;
                     if (mapping.type==='boolean'){
@@ -412,6 +432,7 @@ var PrismToolbar = (function(){
                 // See if line-wrap should be turned on to start with
                 if (config.lineWrap){
                     elem.classList.add('jCodeForceLineWrap');
+                    toolbarElem.querySelector('.jPrismToolbarToggleLineWrap').setAttribute('data-linewrapon',true);
                 }
 
                 // Wrap up all properties into a nice "instance" object
@@ -577,8 +598,17 @@ var PrismToolbar = (function(){
      * Toggles line wrap for a specific prism instance
      */
     PrismToolbarConstructor.prototype.toggleLineWrap = function(instance){
+        var oldIsLineWrapped = instance.codeElem.classList.contains('jCodeForceLineWrap');
         instance.codeElem.classList.toggle('jCodeForceLineWrap');
+        instance.toolbarElem.querySelector('.jPrismToolbarToggleLineWrap').setAttribute('data-linewrapon',(!oldIsLineWrapped).toString());
     };
+
+    PrismToolbarConstructor.prototype.animateButtonClick = function(buttonElement){
+        buttonElement.classList.add('justClicked');
+        setTimeout(function(){
+            buttonElement.classList.remove('justClicked');
+        },400);
+    }
 
     /**
      * Attaches event listeners to all instances that need them set up.
@@ -588,20 +618,28 @@ var PrismToolbar = (function(){
         this.iterator(null,function(instance){
             if (instance.eventsAttached===false){
                 // Line wrap button
-                instance.container.querySelector('.jLineWrapButton').addEventListener('click',function(evt){
+                var lineWrapButton = instance.toolbarElem.querySelector('.jLineWrapButton');
+                lineWrapButton.addEventListener('click',function(evt){
                     _this.toggleLineWrap(instance);
+                    _this.animateButtonClick(lineWrapButton);
                 });
                 // -/+ collapse button
-                instance.container.querySelector('.prismToolbarToggleCollapse').addEventListener('click',function(evt){
+                var collapseButton = instance.toolbarElem.querySelector('.prismToolbarToggleCollapse');
+                collapseButton.addEventListener('click',function(evt){
                     _this.toggleCollapsed(instance);
+                    _this.animateButtonClick(collapseButton);
                 });
                 // Copy button
-                instance.container.querySelector('.jCopyButton').addEventListener('click',function(evt){
+                var copyButton = instance.toolbarElem.querySelector('.jCopyButton');
+                copyButton.addEventListener('click',function(evt){
                     _this.copyCode(instance);
+                    _this.animateButtonClick(copyButton);
                 });
                 // Maximize button
-                instance.container.querySelector('.jMaximizeButton').addEventListener('click',function(evt){
+                var maximizeButton = instance.toolbarElem.querySelector('.jMaximizeButton');
+                maximizeButton.addEventListener('click',function(evt){
                     _this.toggleMaximize(instance);
+                    _this.animateButtonClick(maximizeButton);
                 });
                 instance.eventsAttached = true;
             }
