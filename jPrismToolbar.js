@@ -282,7 +282,8 @@ var PrismToolbar = (function(){
         this.settings = {
             wrapCombo:  typeof(_inputSettings.wrapCombo)==='boolean' ? _inputSettings.wrapCombo : true,
             animate: typeof(_inputSettings.animate)==='boolean' ? _inputSettings.animate : true,
-            lineWrap: typeof(_inputSettings.lineWrap)==='boolean' ? _inputSettings.lineWrap : false
+            lineWrap: typeof(_inputSettings.lineWrap)==='boolean' ? _inputSettings.lineWrap : false,
+            remoteSrc: typeof(_inputSettings.remoteSrc)==='string' ? _inputSettings.remoteSrc : false
         }
     }
     /**
@@ -334,6 +335,11 @@ var PrismToolbar = (function(){
                 attr: "data-animate",
                 setting: "animate",
                 type: "boolean"
+            },
+            {
+                attr: 'data-jptremote',
+                setting: 'remoteSrc',
+                type: 'string'
             }
         ]
         // Pull from element itself or child
@@ -402,7 +408,6 @@ var PrismToolbar = (function(){
                 toolbarElem.innerHTML = getToolbarHtml();
 
                 // Check to see if <pre></pre> is already wrapped with toolbar wrapper - if not, wrap it
-                // debugger;
                 if (!elem.parentNode.classList.contains('code-toolbar') && config.wrapCombo){
                     var wrapper = document.createElement('div');
                     wrapper.className = 'code-toolbar';
@@ -413,6 +418,12 @@ var PrismToolbar = (function(){
                 }
                 // Toolbar should be added BEFORE <pre></pre>, not inside it
                 elem.parentNode.insertBefore(toolbarElem,elem);
+
+                // Check if <pre></pre> is wrapping <code></code>
+                var innerMostCodeElem = elem;
+                if (elem.childElementCount > 0 && elem.querySelector('code')){
+                    innerMostCodeElem = elem.querySelector('code');
+                }
 
                 // Directly add transition CSS to elements
                 if (config.animate){
@@ -439,6 +450,7 @@ var PrismToolbar = (function(){
                 var currInstance = {
                     container : elem.parentNode,
                     codeElem : elem,
+                    innerMostCodeElem: innerMostCodeElem,
                     toolbarElem : toolbarElem,
                     collapsed : false,
                     copyButton : copyButton,
@@ -449,6 +461,13 @@ var PrismToolbar = (function(){
 
                 // Save
                 this.domInstances.push(currInstance);
+
+                // Check if instance is supposed to pull content from remote URL and if no code provided
+                if (config.remoteSrc && elem.innerText.length < 1){
+                    //
+                    innerMostCodeElem.innerText = 'loading ' + config.remoteSrc + ' ...';
+                    this.loadRemoteCode(currInstance,config.remoteSrc);
+                }
             }
 
             // Attach event listeners
@@ -470,9 +489,17 @@ var PrismToolbar = (function(){
         return this;
     }
     PrismToolbarConstructor.prototype.autoInit = function(){
+        var _this = this;
         this.selector = 'pre > code[class*="language-"]';
         this.settings.wrapCombo = false;
-        this.init();
+        if (document.querySelectorAll(this.selector).length < 1){
+            setTimeout(function(){
+                _this.init();
+            },500)
+        }
+        else {
+            this.init();
+        }
     };
     PrismToolbarConstructor.prototype.initClipboardJS = function(){
         this.iterator(null,function(instance){
@@ -660,14 +687,65 @@ var PrismToolbar = (function(){
             }
         }
     };
-    PrismToolbarConstructor.prototype.showMessage = function(instance,message){
+    PrismToolbarConstructor.prototype.showMessage = function(instance,message, OPT_delay){
+        var delayMs = typeof(OPT_delay)==='number' ? OPT_delay : 1000;
         var messageContainer = instance.toolbarElem.querySelector('.jMessage');
         messageContainer.classList.remove('jHidden');
         messageContainer.innerText = message;
         setTimeout(function(){
             messageContainer.innerText = '';
             messageContainer.classList.add('jHidden');
-        },1000);
+        },delayMs);
     };
+    PrismToolbarConstructor.prototype.loadRemoteCode = function(instance, src){
+        var _this = this;
+        var TIMEOUT_MS = 1000 * 10;
+        var done = false;
+        this.setRemoteLoadingMode(instance, src, true, false);
+        var request = new XMLHttpRequest();
+        request.addEventListener('load',function(res){
+            done = true;
+            var rawRemoteCode = request.responseText;
+            if (request.status === 200){
+                _this.setInnerContent(instance, rawRemoteCode);
+                _this.setRemoteLoadingMode(instance, src, false, false);
+            }
+            else {
+                _this.setRemoteLoadingMode(instance, src, false, true);
+            }
+        });
+        request.open('GET',src);
+        request.send(null);
+        setTimeout(function(){
+            if (!done){
+                _this.setRemoteLoadingMode(instance, src, false, true);
+            }
+        },TIMEOUT_MS);
+    }
+    PrismToolbarConstructor.prototype.setRemoteLoadingMode = function(instance, src, isLoading, failed){
+        if (isLoading){
+            this.showMessage(instance, 'Loading remote code...',2000);
+            //
+        }
+        else {
+            if (failed){
+                this.showMessage(instance, 'Remote URL could not be reached :(',5000);
+                this.setInnerContent(instance,
+                    '<span style="background-color:red;">Remote load failed. Remote link: <a target="_blank" href="' + src + '" style="color:white !important;">' + src + '</a></span>',
+                false);
+            }
+            else {
+                this.showMessage(instance, 'Remote URL loaded!');
+                //
+            }
+        }
+    }
+    PrismToolbarConstructor.prototype.setInnerContent = function(instance, content, OPT_reHighlight){
+        var reHighlight = typeof(OPT_reHighlight)==='boolean' ? OPT_reHighlight : true;
+        instance.innerMostCodeElem.innerHTML = content;
+        if (reHighlight){
+            window.Prism.highlightElement(instance.codeElem);
+        }
+    }
     return PrismToolbarConstructor;
 }());
