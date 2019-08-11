@@ -9,44 +9,54 @@ var PrismToolbar = (function(){
     /**
     * Private Functions
     */
+    function basicHtmlEscape(raw){
+        var escaped = raw;
+        escaped = escaped.replace(/"/g,'&quot;');
+        escaped = escaped.replace(/&/g,'&amp;');
+        escaped = escaped.replace(/</g,'&lt;');
+        escaped = escaped.replace(/>/g,'&gt;');
+        return escaped;
+    }
     function getToolbarHtml(){
         function getFallbackButtonCode(fallbackText){
             return (
-                '<div class="jAutoCenterParent jIconWrapper jIconsSolidBackground">' +
+                '<div class="jAutCtPrnt jIconWrapper jIconSldBg">' +
                     '<div class="jFallback">' + fallbackText + '</div>' +
                 '</div>'
             );
         }
-        function getThirdPartyIconCode(innerIconCode){
+        function getThirdPartyIconCode(identifier,isMaterialize){
             return (
-                '<div class="jAutoCenterParent jIconWrapper jIconsSolidBackground">' +
-                    innerIconCode +
+                '<div class="jAutCtPrnt jIconWrapper jIconSldBg">' +
+                    '<i class=' +
+                    (isMaterialize ? ('"material-icons left">' + identifier) : ('"fa ' + identifier + ' jIconSldBg" aria-hidden="true">')) +
+                    '</i>' +
                 '</div>'
             );
         }
         var lineWrapButtonCode = '' +
-        '<div class="jPrismToolbarToggleLineWrap jToolbarButton jToolbarButtonShowPointer jLineWrapButton jHasFallbackIcons jShadowLight" title="Toggle Line Wrap" data-linewrapon="false">' +
+        '<div class="JtbBtn JtbBtnShowPointer jLineWrapButton jHsFlbkIcons jShadowLight" title="Toggle Line Wrap" data-linewrapon="false">' +
             // Fallback
             getFallbackButtonCode('break') +
             // Third Party Icons
-            getThirdPartyIconCode('<i class="fa fa-outdent jIconsSolidBackground" aria-hidden="true"></i>') +
-            getThirdPartyIconCode('<i class="material-icons left">wrap_text</i>') +
+            getThirdPartyIconCode('wrap_text',true) +
+            getThirdPartyIconCode('fa-outdent',false) +
         '</div>';
         var copyButtonCode = '' +
-        '<div class="jToolbarButton jCopyButton jHasFallbackIcons jShadowLight" title="Copy code to clipboard">' +
+        '<div class="JtbBtn jCopyButton jHsFlbkIcons jShadowLight" title="Copy code to clipboard">' +
             // Fallback
             getFallbackButtonCode('copy') +
             // Third Party Icons
-            getThirdPartyIconCode('<i class="material-icons left">content_copy</i>') +
-            getThirdPartyIconCode('<i class="fa fa-clone jIconsSolidBackground" aria-hidden="true"></i>') +
+            getThirdPartyIconCode('content_copy',true) +
+            getThirdPartyIconCode('fa-clone',false) +
         '</div>';
         var maximizeButtonCode = '' +
-        '<div class="jToolbarButton jToolbarButtonShowPointer jMaximizeButton jHasFallbackIcons jShadowLight" title="Fullscreen code view">' +
+        '<div class="JtbBtn JtbBtnShowPointer jMaximizeButton jHsFlbkIcons jShadowLight" title="Fullscreen code view">' +
             // Fallback
             getFallbackButtonCode('max') +
             // Third Party Icons
-            getThirdPartyIconCode('<i class="material-icons left">fullscreen</i>') +
-            getThirdPartyIconCode('<i class="fa fa-search-plus jIconsSolidBackground" aria-hidden="true"></i>') +
+            getThirdPartyIconCode('fullscreen',true) +
+            getThirdPartyIconCode('fa-search-plus',false) +
         '</div>';
         return (
             '<div class="jToolbar jShadow">' +
@@ -59,9 +69,9 @@ var PrismToolbar = (function(){
                     '<div class="jRightSide">' +
                         lineWrapButtonCode +
                         copyButtonCode +
-                        '<div class="prismToolbarToggleCollapse jToolbarButton jToolbarButtonShowPointer jShadowLight" data-collapsed="false" title="Toggle collapse of code embed">' +
-                            '<div class="isNotCollapsed jAutoCenterParent"><div>-</div></div>' +
-                            '<div class="isCollapsed jAutoCenterParent"><div>+</div></div>' +
+                        '<div class="prismTbTgCollap JtbBtn JtbBtnShowPointer jShadowLight" data-collapsed="false" title="Toggle collapse of code embed">' +
+                            '<div class="isNotCollapsed jAutCtPrnt"><div>-</div></div>' +
+                            '<div class="isCollapsed jAutCtPrnt"><div>+</div></div>' +
                         '</div>' +
                         maximizeButtonCode +
                     '</div>' +
@@ -73,7 +83,7 @@ var PrismToolbar = (function(){
 
     function getToolbarCss(){
         return (
-            '.jToolbarButton {' +
+            '.JtbBtn {' +
                 'border: 1px solid black;' +
                 'width: 36px;' +
                 'height: 36px;' +
@@ -112,16 +122,16 @@ var PrismToolbar = (function(){
             '.jToolbarWrapper .jLeftSide {' +
                 'max-width: 50%;' +
             '}' +
-            '.prismToolbarToggleCollapse[data-collapsed=\'false\'] .isCollapsed {' +
+            '.prismTbTgCollap[data-collapsed=\'false\'] .isCollapsed {' +
                 'display:none;' +
             '}' +
-            '.prismToolbarToggleCollapse[data-collapsed=\'false\'] .isNotCollapsed {' +
+            '.prismTbTgCollap[data-collapsed=\'false\'] .isNotCollapsed {' +
                 'display:block;' +
             '}' +
-            '.prismToolbarToggleCollapse[data-collapsed=\'true\'] .isCollapsed {' +
+            '.prismTbTgCollap[data-collapsed=\'true\'] .isCollapsed {' +
                 'display:block;' +
             '}' +
-            '.prismToolbarToggleCollapse[data-collapsed=\'true\'] .isNotCollapsed {' +
+            '.prismTbTgCollap[data-collapsed=\'true\'] .isNotCollapsed {' +
                 'display:none;' +
             '}' +
             '.jToolbarWrapper {' +
@@ -135,39 +145,35 @@ var PrismToolbar = (function(){
                 '-webkit-box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);' +
                 'box-shadow: 0 4px 5px 0 rgba(0,0,0,0.14), 0 1px 10px 0 rgba(0,0,0,0.12), 0 2px 4px -1px rgba(0,0,0,0.3);' +
             '}' +
-            '.jToolbarButton > img {' +
-                'width: 100%;' +
-                'height: 100%;' +
-            '}' +
-            '.jPrismToolbarStyled .jAutoCenterParent {' +
+            '.jPTbStyl .jAutCtPrnt {' +
                 'position: relative;' +
             '}' +
-            '.jAutoCenterChild, .jAutoCenterParent > * {' +
+            '.jAutoCenterChild, .jAutCtPrnt > * {' +
                 'position: absolute;' +
                 'top: 50%;' +
                 'left: 50%;' +
                 'transform: translate(-50%, -50%);' +
             '}' +
-            '.jToolbarWrapper .jContent {' +
+            '.jToolbarWrapper .jContent, JtbBtn > img, .prismTbTgCollap > .jAutCtPrnt {' +
                 'width: 100%;' +
                 'height: 100%;' +
             '}' +
-            '.jPrismToolbarStyled .jCopyButton .jFallback {' +
+            '.jPTbStyl .jCopyButton .jFallback {' +
                 'font-size: 1rem;' +
             '}' +
-            '.jToolbarButton, .jPrismToolbarStyled .jIconsSolidBackground {' +
+            '.JtbBtn, .jPTbStyl .jIconSldBg {' +
                 'webkitTransition: all 300ms;' +
                 'transition: all 300ms;' +
             '}' +
-            '.jPrismToolbarStyled .jIconsSolidBackground {' +
+            '.jPTbStyl .jIconSldBg {' +
                 'background-color: white;' +
                 'color: black !important;' +
             '}' +
-            '.jToolbarButton.justClicked .jIconsSolidBackground, .jToolbarButton.justClicked {' +
+            '.JtbBtn.justClicked .jIconSldBg, .JtbBtn.justClicked {' +
                 'background-color: black !important;' +
                 'color: white !important;' +
             '}' +
-            '.jHasFallbackIcons > i, .jHasFallbackIcons > .jFallback, .jIconWrapper {' +
+            '.jHsFlbkIcons > i, .jHsFlbkIcons > .jFallback, .jIconWrapper {' +
                 'position: absolute !important;' +
                 'width: 36px;' +
                 'height: 36px;' +
@@ -177,20 +183,20 @@ var PrismToolbar = (function(){
                 'left: 0px !important;' +
                 
             '}' +
-            '.prismToolbarToggleCollapse {' +
+            '.prismTbTgCollap {' +
                 'display: inline-block;' +
                 'cursor: pointer;' +
             '}' +
-            '.jToolbarButtonShowPointer {' +
+            '.JtbBtnShowPointer {' +
                 'cursor: pointer;' +
             '}' +
-            '.jPrismToolbarStyled .jCopyButton {' +
+            '.jPTbStyl .jCopyButton {' +
                 'cursor: copy;' +
             '}' +
-            '.jPrismToolbarToggleLineWrap[data-linewrapon="true"] .jIconsSolidBackground {' +
+            '.jPTbrTogLWrap[data-linewrapon="true"] .jIconSldBg {' +
                 'background-color: #cfffcf;' +
             '}' +
-            '.jFullscreenWrapper {' +
+            '.jFscrnWrp {' +
                 'width: 100%;' +
                 'height: 100%;' +
                 'position: fixed;' +
@@ -200,7 +206,7 @@ var PrismToolbar = (function(){
                 'left: 0px;' +
                 'max-width: 100%;' +
             '}' +
-            '.jFullscreenWrapper .jCodeWrapper {' +
+            '.jFscrnWrp .jCodeWrapper {' +
                 'height: 94%;' +
                 'width: 100%;' +
             '}' +
@@ -209,7 +215,7 @@ var PrismToolbar = (function(){
                 'min-height: 6%;' +
                 'background-color: black;' +
             '}' +
-            '.jFullscreenToolbarButtonWrapper {' +
+            '.jFscreenTBtnWrp {' +
                 'text-align: center;' +
                 'width: 100%;' +
                 'min-height: 6%;' +
@@ -222,7 +228,7 @@ var PrismToolbar = (function(){
                 'font-size: 3rem;' +
                 'cursor: pointer;' +
             '}' +
-            '.jFullscreenWrapper .jCodeWrapper > * {' +
+            '.jFscrnWrp .jCodeWrapper > * {' +
                 'border: 2px solid white;' +
                 'width: 96% !important;' +
                 'height : auto !important;' +
@@ -230,14 +236,10 @@ var PrismToolbar = (function(){
                 'overflow-y: scroll;' +
                 'margin: 0px;' +
             '}' +
-            '.prismToolbarToggleCollapse > .jAutoCenterParent {' +
-                'width: 100%;' +
-                'height: 100%;' +
-            '}' +
             '.jMessageWrapper {' +
                 'width: auto;' +
             '}' +
-            '.jPrismToolbarStyled .jMessage {' +
+            '.jPTbStyl .jMessage {' +
                 'margin-left: 10px;' +
                 'margin-top: 3px;' +
                 'font-family: monospace;' +
@@ -248,7 +250,7 @@ var PrismToolbar = (function(){
                 'padding: 4px;' +
                 'text-align: center;' +
             '}' +
-            '.jFullscreenWrapper .jHidden, .jToolbarWrapper .jHidden {' +
+            '.jFscrnWrp .jHidden, .jToolbarWrapper .jHidden {' +
                 'display: none !important;' +
             '}' +
             '.jCodeForceLineWrap, .jCodeForceLineWrap code {' +
@@ -410,7 +412,7 @@ var PrismToolbar = (function(){
 
                 // Now, in this context, elem is the code element (pre usually)
                 var toolbarElem = document.createElement('div');
-                toolbarElem.className = 'jToolbarWrapper jPrismToolbarStyled';
+                toolbarElem.className = 'jToolbarWrapper jPTbStyl';
                 toolbarElem.innerHTML = getToolbarHtml();
 
                 // Check to see if <pre></pre> is already wrapped with toolbar wrapper - if not, wrap it
@@ -449,7 +451,7 @@ var PrismToolbar = (function(){
                 // See if line-wrap should be turned on to start with
                 if (config.lineWrap){
                     elem.classList.add('jCodeForceLineWrap');
-                    toolbarElem.querySelector('.jPrismToolbarToggleLineWrap').setAttribute('data-linewrapon',true);
+                    toolbarElem.querySelector('.jPTbrTogLWrap').setAttribute('data-linewrapon',true);
                 }
 
                 // Wrap up all properties into a nice "instance" object
@@ -473,8 +475,6 @@ var PrismToolbar = (function(){
                     var remoteSrcDisplayElem = toolbarElem.querySelector('.jRemoteSrcDisplay');
                     remoteSrcDisplayElem.classList.remove('jHidden');
                     remoteSrcDisplayElem.innerHTML = 'Remote Source: <a href="' + config.remoteSrc + '" target="_blank">' + config.remoteSrc + '</a>';
-
-                    innerMostCodeElem.innerText = 'loading ' + config.remoteSrc + ' ...';
                     this.loadRemoteCode(currInstance,config.remoteSrc);
                 }
             }
@@ -554,7 +554,7 @@ var PrismToolbar = (function(){
             instance.collapsed = false;
         }
         // Update toolbar button
-        instance.toolbarElem.querySelector('.prismToolbarToggleCollapse').setAttribute('data-collapsed',instance.collapsed.toString());
+        instance.toolbarElem.querySelector('.prismTbTgCollap').setAttribute('data-collapsed',instance.collapsed.toString());
     };
     PrismToolbarConstructor.prototype.copyCode = function(instance){
         // https://stackoverflow.com/a/2838358
@@ -591,17 +591,17 @@ var PrismToolbar = (function(){
         if (instance.isMaximized!==true){
             // Construct a fullscreen wrapper
             var fullscreenWrapper = document.createElement('div');
-            fullscreenWrapper.className = 'jFullscreenWrapper jPrismToolbarStyled';
+            fullscreenWrapper.className = 'jFscrnWrp jPTbStyl';
             // Create toolbar
             fullscreenWrapper.innerHTML = '' +
                 '<div class="jFullscreenToolbar">' +
-                    '<div class="jFullscreenToolbarButtonWrapper">' +
+                    '<div class="jFscreenTBtnWrp">' +
                         '<div class="jFullscreenToolbarButton jCloseButton">X</div>' +
                     '</div>' +
                 '</div>';
             // Create code wrapper
             var codeWrapper = document.createElement('div');
-            codeWrapper.className = 'jCodeWrapper jAutoCenterParent';
+            codeWrapper.className = 'jCodeWrapper jAutCtPrnt';
             // Copy actual code element to code wrapper
             var codeClone = instance.codeElem.cloneNode(true);
             // Append code clone to wrapper
@@ -636,7 +636,7 @@ var PrismToolbar = (function(){
     PrismToolbarConstructor.prototype.toggleLineWrap = function(instance){
         var oldIsLineWrapped = instance.codeElem.classList.contains('jCodeForceLineWrap');
         instance.codeElem.classList.toggle('jCodeForceLineWrap');
-        instance.toolbarElem.querySelector('.jPrismToolbarToggleLineWrap').setAttribute('data-linewrapon',(!oldIsLineWrapped).toString());
+        instance.toolbarElem.querySelector('.jPTbrTogLWrap').setAttribute('data-linewrapon',(!oldIsLineWrapped).toString());
     };
 
     PrismToolbarConstructor.prototype.animateButtonClick = function(buttonElement){
@@ -660,7 +660,7 @@ var PrismToolbar = (function(){
                     _this.animateButtonClick(lineWrapButton);
                 });
                 // -/+ collapse button
-                var collapseButton = instance.toolbarElem.querySelector('.prismToolbarToggleCollapse');
+                var collapseButton = instance.toolbarElem.querySelector('.prismTbTgCollap');
                 collapseButton.addEventListener('click',function(evt){
                     _this.toggleCollapsed(instance);
                     _this.animateButtonClick(collapseButton);
@@ -717,7 +717,7 @@ var PrismToolbar = (function(){
             done = true;
             var rawRemoteCode = request.responseText;
             if (request.status === 200){
-                _this.setInnerContent(instance, rawRemoteCode);
+                _this.setInnerContent(instance, basicHtmlEscape(rawRemoteCode));
                 _this.setRemoteLoadingMode(instance, src, false, false);
             }
             else {
@@ -735,7 +735,7 @@ var PrismToolbar = (function(){
     PrismToolbarConstructor.prototype.setRemoteLoadingMode = function(instance, src, isLoading, failed){
         if (isLoading){
             this.showMessage(instance, 'Loading remote code...',2000);
-            //
+            this.setInnerContent(instance, 'loading ' + src + ' ...',false);
         }
         else {
             if (failed){
@@ -746,7 +746,6 @@ var PrismToolbar = (function(){
             }
             else {
                 this.showMessage(instance, 'Remote URL loaded!');
-                //
             }
         }
     }
