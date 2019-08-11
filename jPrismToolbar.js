@@ -65,6 +65,7 @@ var PrismToolbar = (function(){
                         '</div>' +
                         maximizeButtonCode +
                     '</div>' +
+                    '<div class="jRemoteSrcDisplay jHidden"></div>' +
                 '</div>' +
             '</div>'
         );
@@ -253,6 +254,11 @@ var PrismToolbar = (function(){
             '.jCodeForceLineWrap, .jCodeForceLineWrap code {' +
                 'white-space: pre-wrap;' +
             '}' + 
+            '.jRemoteSrcDisplay {' +
+                'text-align: center;' +
+                'width: 100%;' +
+                'margin-top: 50px' +
+            '}' +
             '@media only screen and (max-width: 360px){' +
                 '.jToolbar {' +
                     'min-height: 95px;' +
@@ -464,7 +470,10 @@ var PrismToolbar = (function(){
 
                 // Check if instance is supposed to pull content from remote URL and if no code provided
                 if (config.remoteSrc && elem.innerText.length < 1){
-                    //
+                    var remoteSrcDisplayElem = toolbarElem.querySelector('.jRemoteSrcDisplay');
+                    remoteSrcDisplayElem.classList.remove('jHidden');
+                    remoteSrcDisplayElem.innerHTML = 'Remote Source: <a href="' + config.remoteSrc + '" target="_blank">' + config.remoteSrc + '</a>';
+
                     innerMostCodeElem.innerText = 'loading ' + config.remoteSrc + ' ...';
                     this.loadRemoteCode(currInstance,config.remoteSrc);
                 }
@@ -698,6 +707,7 @@ var PrismToolbar = (function(){
         },delayMs);
     };
     PrismToolbarConstructor.prototype.loadRemoteCode = function(instance, src){
+        // @TODO - add JSONP option?
         var _this = this;
         var TIMEOUT_MS = 1000 * 10;
         var done = false;
