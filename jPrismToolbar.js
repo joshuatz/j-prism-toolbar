@@ -11,7 +11,6 @@ var PrismToolbar = (function(){
     */
     function basicHtmlEscape(raw){
         var escaped = raw;
-        escaped = escaped.replace(/"/g,'&quot;');
         escaped = escaped.replace(/&/g,'&amp;');
         escaped = escaped.replace(/</g,'&lt;');
         escaped = escaped.replace(/>/g,'&gt;');
@@ -35,7 +34,7 @@ var PrismToolbar = (function(){
             );
         }
         var lineWrapButtonCode = '' +
-        '<div class="JtbBtn JtbBtnShowPointer jLineWrapButton jHsFlbkIcons jShadowLight" title="Toggle Line Wrap" data-linewrapon="false">' +
+        '<div class="jPTbrTogLWrap JtbBtn JtbBtnShowPointer jLineWrapButton jHsFlbkIcons jShadowLight" title="Toggle Line Wrap" data-linewrapon="false">' +
             // Fallback
             getFallbackButtonCode('break') +
             // Third Party Icons
@@ -427,12 +426,6 @@ var PrismToolbar = (function(){
                 // Toolbar should be added BEFORE <pre></pre>, not inside it
                 elem.parentNode.insertBefore(toolbarElem,elem);
 
-                // Check if <pre></pre> is wrapping <code></code>
-                var innerMostCodeElem = elem;
-                if (elem.childElementCount > 0 && elem.querySelector('code')){
-                    innerMostCodeElem = elem.querySelector('code');
-                }
-
                 // Directly add transition CSS to elements
                 if (config.animate){
                     elem.style.webkitTransition = 'all 1s';
@@ -458,7 +451,6 @@ var PrismToolbar = (function(){
                 var currInstance = {
                     container : elem.parentNode,
                     codeElem : elem,
-                    innerMostCodeElem: innerMostCodeElem,
                     toolbarElem : toolbarElem,
                     collapsed : false,
                     copyButton : copyButton,
@@ -717,7 +709,7 @@ var PrismToolbar = (function(){
             done = true;
             var rawRemoteCode = request.responseText;
             if (request.status === 200){
-                _this.setInnerContent(instance, basicHtmlEscape(rawRemoteCode));
+                _this.setInnerContent(instance, basicHtmlEscape(rawRemoteCode),true,true);
                 _this.setRemoteLoadingMode(instance, src, false, false);
             }
             else {
@@ -749,9 +741,20 @@ var PrismToolbar = (function(){
             }
         }
     }
-    PrismToolbarConstructor.prototype.setInnerContent = function(instance, content, OPT_reHighlight){
+    PrismToolbarConstructor.prototype.setInnerContent = function(instance, content, OPT_reHighlight, OPT_forceIntoCodeEleme){
+        var forceCodeElem = typeof(OPT_forceIntoCodeEleme)==='boolean' ? OPT_forceIntoCodeEleme : false;
         var reHighlight = typeof(OPT_reHighlight)==='boolean' ? OPT_reHighlight : true;
-        instance.innerMostCodeElem.innerHTML = content;
+        var contentTarget = instance.codeElem;
+        // See if <code></code> is contained
+        if (instance.codeElem.querySelector('code')){
+            contentTarget = instance.codeElem.querySelector('code');
+        }
+        else if (instance.codeElem.nodeName==='PRE' && forceCodeElem){
+            instance.codeElem.innerHTML = '';
+            var codeElem = document.createElement('code');
+            instance.codeElem.appendChild(codeElem);
+        }
+        contentTarget.innerHTML = content;
         if (reHighlight){
             window.Prism.highlightElement(instance.codeElem);
         }
