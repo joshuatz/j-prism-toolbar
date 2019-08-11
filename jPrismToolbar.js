@@ -290,7 +290,8 @@ var PrismToolbar = (function(){
             wrapCombo:  typeof(_inputSettings.wrapCombo)==='boolean' ? _inputSettings.wrapCombo : true,
             animate: typeof(_inputSettings.animate)==='boolean' ? _inputSettings.animate : true,
             lineWrap: typeof(_inputSettings.lineWrap)==='boolean' ? _inputSettings.lineWrap : false,
-            remoteSrc: typeof(_inputSettings.remoteSrc)==='string' ? _inputSettings.remoteSrc : false
+            remoteSrc: typeof(_inputSettings.remoteSrc)==='string' ? _inputSettings.remoteSrc : false,
+            debug: typeof(_inputSettings.debug)==='boolean' ? _inputSettings.debug : false
         }
     }
     /**
@@ -462,8 +463,11 @@ var PrismToolbar = (function(){
                 // Save
                 this.domInstances.push(currInstance);
 
-                // Check if instance is supposed to pull content from remote URL and if no code provided
-                if (config.remoteSrc && elem.innerText.length < 1){
+                // Check if instance is supposed to pull content from remote URL
+                if (config.remoteSrc){
+                    if (elem.innerText.length > 0 && this.settings.debug){
+                        console.warn('Overwriting code content with AJAX content');
+                    }
                     var remoteSrcDisplayElem = toolbarElem.querySelector('.jRemoteSrcDisplay');
                     remoteSrcDisplayElem.classList.remove('jHidden');
                     remoteSrcDisplayElem.innerHTML = 'Remote Source: <a href="' + config.remoteSrc + '" target="_blank">' + config.remoteSrc + '</a>';
@@ -755,7 +759,7 @@ var PrismToolbar = (function(){
             instance.codeElem.appendChild(codeElem);
         }
         contentTarget.innerHTML = content;
-        if (reHighlight){
+        if (reHighlight && typeof(window.Prism)==='object'){
             window.Prism.highlightElement(instance.codeElem);
         }
     }
