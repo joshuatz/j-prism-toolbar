@@ -1,0 +1,29 @@
+<!-- Test HTML file to be fed into test -->
+
+<!-- Total Targetable Elements = 2-->
+
+<!-- No attribs, simple setup-->
+<pre id="alpha" class="no-attribs">
+    <code class="language-js">
+        console.<span>log</span>(<span>'Test'</span>)<span>;</span>
+    </code>
+</pre>
+
+<!-- With attribs -->
+<pre id="bravo" class="with-attribs" data-linewrap="true">
+    <code class="language-js">
+        console.<span>log</span>(<span>'Test'</span>)<span>;</span>
+    </code>
+</pre>
+
+<!-- pre, no code -->
+<!-- Supported, but not on auto-init -->
+<pre id="charlie" class="nocode">
+    console.<span>log</span>(<span>'Test'</span>)<span>;</span>
+</pre>
+
+<!-- no wrapped pre -->
+<!-- Not currently supported -->
+<code id="delta" class="nopre language-js">
+    console.<span>log</span>(<span>'Test'</span>)<span>;</span>
+</code>

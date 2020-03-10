@@ -4,14 +4,22 @@
   "description": "Quick toolbar thrown together for PrismJS. Typical \"windows\" style toolbar, with minimize/expand, fullscreen, and copy-to-clipboard buttons.\r ##",
   "main": "jPrismToolbar.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --collectCoverage",
     "minify": "uglifyjs jPrismToolbar.js -c -m --output jPrismToolbar.min.js"
   },
   "keywords": [],
   "author": "Joshua Tzucker",
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^25.1.3",
+    "jest": "^25.1.0",
     "uglify-js": "^3.6.0"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "jest": {
+    "testEnvironmentOptions": {
+      "runScripts": "dangerously",
+      "resources": "usable"
+    }
+  }
 }
