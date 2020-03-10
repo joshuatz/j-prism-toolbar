@@ -558,6 +558,7 @@ window.PrismToolbar = (function() {
             var doc = win.document,
                 sel,
                 range;
+            /* istanbul ignore next */
             if (win.getSelection && doc.createRange) {
                 sel = win.getSelection();
                 range = doc.createRange();
@@ -571,6 +572,7 @@ window.PrismToolbar = (function() {
             }
         }
         // Check for ClipboardJS
+        /* istanbul ignore next */
         if (this.getHasClipboardJS() === true) {
             // Do nothing, since ClipboardJS is initialized elsewhere and handles via HTML attributes
             this.showMessage(instance, 'Copied to clipboard!');
@@ -701,8 +703,9 @@ window.PrismToolbar = (function() {
             messageContainer.classList.add('jHidden');
         }, delayMs);
     };
-    PrismToolbarConstructor.prototype.loadRemoteCode = function(instance, src) {
+    PrismToolbarConstructor.prototype.loadRemoteCode = function(instance, src, callback) {
         // @TODO - add JSONP option?
+        callback = typeof callback === 'function' ? callback : () => {};
         var _this = this;
         var TIMEOUT_MS = 1000 * 10;
         var done = false;
@@ -717,6 +720,11 @@ window.PrismToolbar = (function() {
             } else {
                 _this.setRemoteLoadingMode(instance, src, false, true);
             }
+            callback({
+                request,
+                code: rawRemoteCode,
+                instance
+            });
         });
         request.open('GET', src);
         request.send(null);

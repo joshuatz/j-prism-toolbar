@@ -2,6 +2,8 @@
 /// <reference types="jest" />
 const fs = require('fs');
 const testHelpers = require('./helpers/test-helpers');
+// @ts-ignore
+require('./helpers/jsdom-shims');
 
 // @ts-ignore
 require('../jPrismToolbar.js');
@@ -89,10 +91,58 @@ describe('Tests jPrismToolbar', () => {
         });
 
         test('Lets users maximize code viewer', () => {
-            console.log(testInsts);
             expect(testInsts.alpha.isMaximized).toEqual(false);
             testInsts.alpha.toolbarElem.querySelector('.jMaximizeButton').click();
             expect(testInsts.alpha.isMaximized).toEqual(true);
+        });
+
+        // SKIP: Can't use getSelection() in JSDOM
+        test.skip('Preps text for copying to clipboard', () => {
+            expect(window.getSelection().toString()).toEqual('');
+            testInsts.alpha.toolbarElem.querySelector('.jCopyButton').click();
+            const selectedText = window
+                .getSelection()
+                .toString()
+                .trim();
+            expect(selectedText).toEqual(`console.log('Test');`);
+        });
+    });
+
+    describe('Tests API', () => {
+        let initRes;
+        beforeEach(() => {
+            initRes = new PrismConstructor().autoInit();
+            grabTestElements();
+            grabTestInstances(initRes);
+        });
+
+        test('Is able to receive info on instantiation', () => {
+            expect(typeof initRes === 'object').toBe(true);
+            expect(initRes.targetElementsArr.length).toEqual(2);
+        });
+
+        test('Can set content via method', () => {
+            expect(testInsts.alpha.codeElem.textContent.trim()).toEqual(`console.log('Test');`);
+            const dummyCodeText = 'abc123';
+            initRes.setInnerContent(testInsts.alpha, dummyCodeText);
+            expect(testInsts.alpha.codeElem.textContent.trim()).toEqual(dummyCodeText);
+        });
+
+        // @TODO - this works, but really should be either mocked or replayed
+        test('Can load remote content', () => {
+            expect.assertions(1);
+            const loaderPromise = new Promise(resolve => {
+                initRes.loadRemoteCode(
+                    testInsts.alpha,
+                    'https://raw.githubusercontent.com/joshuatz/j-prism-toolbar/master/LICENSE',
+                    loadResult => {
+                        resolve(loadResult);
+                    }
+                );
+            });
+            return loaderPromise.then(loadResult => {
+                expect(loadResult.request.status).toEqual(200);
+            });
         });
     });
 });
