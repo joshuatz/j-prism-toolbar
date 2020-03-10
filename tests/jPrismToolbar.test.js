@@ -2,8 +2,6 @@
 /// <reference types="jest" />
 const fs = require('fs');
 const testHelpers = require('./helpers/test-helpers');
-// @ts-ignore
-require('./helpers/jsdom-shims');
 
 // @ts-ignore
 require('../jPrismToolbar.js');
