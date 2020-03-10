@@ -5,7 +5,7 @@
  * @license MIT
  */
 
-var PrismToolbar = (function() {
+window.PrismToolbar = (function() {
     /**
      * Private Functions
      */
@@ -25,9 +25,7 @@ var PrismToolbar = (function() {
         function getThirdPartyIconCode(identifier, isMaterialize) {
             return `<div class="jAutCtPrnt jIconWrapper jIconSldBg">
                     <i class="${
-                        isMaterialize
-                            ? 'material-icons left' + identifier
-                            : 'fa ' + identifier + ' jIconSldBg'
+                        isMaterialize ? 'material-icons left' + identifier : 'fa ' + identifier + ' jIconSldBg'
                     }" ${isMaterialize ? '' : 'aria-hidden="true"'}>
                     </i>
                 </div>`;
@@ -276,7 +274,7 @@ var PrismToolbar = (function() {
      * Constructor and Public Functions
      */
     function PrismToolbarConstructor(inputSettings) {
-        _inputSettings = inputSettings || {};
+        _inputSettings = typeof inputSettings === 'object' ? inputSettings : {};
         // Controls where the toolbar is injected and if your code should be wrapped and then toolbar injected - usually yes
         this.domInstances = [];
         this.targetElementsArr = [];
@@ -301,10 +299,7 @@ var PrismToolbar = (function() {
         if (_inputSettings.targetElements && _inputSettings.targetElements instanceof NodeList) {
             // NodeList
             _inputTargetElementsArr = _inputSettings.targetElements;
-        } else if (
-            _inputSettings.targetElements &&
-            typeof _inputSettings.targetElements.nodeName === 'string'
-        ) {
+        } else if (_inputSettings.targetElements && typeof _inputSettings.targetElements.nodeName === 'string') {
             // Single element
             _inputTargetElementsArr = [_inputSettings.targetElements];
         } else if (this.selector && typeof this.selector === 'string') {
@@ -326,7 +321,9 @@ var PrismToolbar = (function() {
     };
     PrismToolbarConstructor.prototype.getPerInstanceConfig = function(element) {
         // Copy settings from main setup
-        var config = this.settings;
+        var config = {
+            ...this.settings
+        };
         // let inline HTML attributes override settings
         var allowedOverrides = [
             {
@@ -448,7 +445,9 @@ var PrismToolbar = (function() {
                     copyButton: copyButton,
                     clipboardInitialized: false,
                     eventsAttached: false,
-                    config: config
+                    config: config,
+                    isMaximized: false,
+                    fullscreenWrapper: undefined
                 };
 
                 // Save
@@ -496,10 +495,10 @@ var PrismToolbar = (function() {
         this.settings.wrapCombo = false;
         if (document.querySelectorAll(this.selector).length < 1) {
             setTimeout(function() {
-                _this.init();
+                return _this.init();
             }, 500);
         } else {
-            this.init();
+            return this.init();
         }
     };
     PrismToolbarConstructor.prototype.initClipboardJS = function() {
@@ -527,14 +526,8 @@ var PrismToolbar = (function() {
             // Save info about the expanded state to be used later if returning
             var originalHeight = getComputedStyle(instance.codeElem).height;
             instance.codeElem.setAttribute('data-jexpandedheight', originalHeight);
-            instance.codeElem.setAttribute(
-                'data-jexpandedpadding',
-                getComputedStyle(instance.codeElem).padding
-            );
-            instance.codeElem.setAttribute(
-                'data-jexpandedoverflow',
-                getComputedStyle(instance.codeElem).overflow
-            );
+            instance.codeElem.setAttribute('data-jexpandedpadding', getComputedStyle(instance.codeElem).padding);
+            instance.codeElem.setAttribute('data-jexpandedoverflow', getComputedStyle(instance.codeElem).overflow);
             // Now collapse the code block down
             instance.codeElem.style.height = originalHeight;
             // Need a delay after setting height manually to get transition animation to work

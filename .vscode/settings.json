@@ -5,7 +5,7 @@
     "prettier.tabWidth": 4,
     "prettier.singleQuote": true,
     "prettier.semi": true,
-    "prettier.printWidth": 110,
+    "prettier.printWidth": 120,
     "[javascript]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true
