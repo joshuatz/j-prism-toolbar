@@ -1,4 +1,4 @@
-# j-prism-toolbar
+# j-prism-toolbar ![](https://github.com/joshuatz/j-prism-toolbar/workflows/Node.js%20CI/badge.svg)
 Quick toolbar thrown together for PrismJS. Typical "windows" style toolbar, with minimize/expand, fullscreen, and copy-to-clipboard buttons.
 
 ---

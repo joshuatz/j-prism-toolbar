@@ -83,15 +83,27 @@ describe('Tests jPrismToolbar', () => {
         });
 
         test('Lets users collapse via button', () => {
-            expect(testInsts.alpha.collapsed).toEqual(false);
-            testInsts.alpha.toolbarElem.querySelector('.prismTbTgCollap').click();
-            expect(testInsts.alpha.collapsed).toEqual(true);
+            return new Promise(resolver => {
+                expect(testInsts.alpha.collapsed).toEqual(false);
+                testInsts.alpha.toolbarElem.querySelector('.prismTbTgCollap').click();
+                expect(testInsts.alpha.collapsed).toEqual(true);
+                setTimeout(resolver, 200);
+            }).then(() => {
+                expect(testInsts.alpha.collapsed).toEqual(true);
+                testInsts.alpha.toolbarElem.querySelector('.prismTbTgCollap').click();
+                expect(testInsts.alpha.collapsed).toEqual(false);
+            });
         });
 
         test('Lets users maximize code viewer', () => {
             expect(testInsts.alpha.isMaximized).toEqual(false);
             testInsts.alpha.toolbarElem.querySelector('.jMaximizeButton').click();
             expect(testInsts.alpha.isMaximized).toEqual(true);
+            // Make sure clicking outside maximize area closes
+            const backdrops = document.querySelectorAll('.jCodeWrapper');
+            // @ts-ignore
+            backdrops[backdrops.length - 1].click();
+            expect(testInsts.alpha.isMaximized).toEqual(false);
         });
 
         // SKIP: Can't use getSelection() in JSDOM
@@ -124,6 +136,19 @@ describe('Tests jPrismToolbar', () => {
             const dummyCodeText = 'abc123';
             initRes.setInnerContent(testInsts.alpha, dummyCodeText);
             expect(testInsts.alpha.codeElem.textContent.trim()).toEqual(dummyCodeText);
+        });
+
+        test('Can show message via method', () => {
+            /** @type {HTMLElement} */
+            const messageElem = testInsts.bravo.toolbarElem.querySelector('.jMessage');
+            return new Promise(resolver => {
+                expect(messageElem.classList.contains('jHidden')).toEqual(true);
+                initRes.showMessage(testInsts.bravo, 'test', 10);
+                expect(messageElem.classList.contains('jHidden')).toEqual(false);
+                setTimeout(resolver, 20);
+            }).then(() => {
+                expect(messageElem.classList.contains('jHidden')).toEqual(true);
+            });
         });
 
         // @TODO - this works, but really should be either mocked or replayed
