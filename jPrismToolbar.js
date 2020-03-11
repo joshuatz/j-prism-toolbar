@@ -16,49 +16,64 @@ window.PrismToolbar = (function() {
         escaped = escaped.replace(/>/g, '&gt;');
         return escaped;
     }
-    function getToolbarHtml() {
+    function getToolbarHtml(config) {
+        const iconMap = {
+            break: {
+                emoji: '↩',
+                material: 'wrap_text',
+                fa: 'fa-outdent'
+            },
+            copy: {
+                emoji: '📋',
+                material: 'content_copy',
+                fa: 'fa-clone'
+            },
+            max: {
+                emoji: '🔎',
+                material: 'fullscreen',
+                fa: 'fa-search-plus'
+            }
+        };
+        function getButtonCode(buttonType) {
+            if (config.iconStyle === 'material') {
+                return getThirdPartyIconCode(buttonType, true);
+            } else if (config.iconStyle === 'fontawesome') {
+                return getThirdPartyIconCode(buttonType, false);
+            } else {
+                return getFallbackButtonCode(buttonType);
+            }
+        }
         function getFallbackButtonCode(fallbackText) {
+            const emoji = iconMap[fallbackText].emoji;
+            const str = emoji && config.iconStyle === 'emoji' ? emoji : fallbackText;
             return `<div class="jAutCtPrnt jIconWrapper jIconSldBg">
-                    <div class="jFallback">${fallbackText}</div>
+                    <div class="jFallback">${str}</div>
                 </div>`;
         }
-        function getThirdPartyIconCode(identifier, isMaterialize) {
+        function getThirdPartyIconCode(buttonType, isMaterial) {
+            const identifier = isMaterial ? iconMap[buttonType].material : iconMap[buttonType].fa;
             return `<div class="jAutCtPrnt jIconWrapper jIconSldBg">
                     <i class="${
-                        isMaterialize ? 'material-icons left' + identifier : 'fa ' + identifier + ' jIconSldBg'
-                    }" ${isMaterialize ? '' : 'aria-hidden="true"'}>
+                        isMaterial ? 'material-icons left' + identifier : 'fa ' + identifier + ' jIconSldBg'
+                    }" ${isMaterial ? '' : 'aria-hidden="true"'}>
                     </i>
                 </div>`;
         }
-        var lineWrapButtonCode =
-            '<div class="jPTbrTogLWrap JtbBtn JtbBtnShowPointer jLineWrapButton jHsFlbkIcons jShadowLight" title="Toggle Line Wrap" data-linewrapon="false">' +
-            // Fallback
-            getFallbackButtonCode('break') +
-            // Third Party Icons
-            getThirdPartyIconCode('wrap_text', true) +
-            getThirdPartyIconCode('fa-outdent', false) +
-            '</div>';
-        var copyButtonCode =
-            '<div class="JtbBtn jCopyButton jHsFlbkIcons jShadowLight" title="Copy code to clipboard">' +
-            // Fallback
-            getFallbackButtonCode('copy') +
-            // Third Party Icons
-            getThirdPartyIconCode('content_copy', true) +
-            getThirdPartyIconCode('fa-clone', false) +
-            '</div>';
-        var maximizeButtonCode =
-            '<div class="JtbBtn JtbBtnShowPointer jMaximizeButton jHsFlbkIcons jShadowLight" title="Fullscreen code view">' +
-            // Fallback
-            getFallbackButtonCode('max') +
-            // Third Party Icons
-            getThirdPartyIconCode('fullscreen', true) +
-            getThirdPartyIconCode('fa-search-plus', false) +
-            '</div>';
+        var lineWrapButtonCode = `<div class="jPTbrTogLWrap JtbBtn JtbBtnShowPointer jLineWrapButton jHsFlbkIcons jShadowLight" title="Toggle Line Wrap" data-linewrapon="false">${getButtonCode(
+            'break'
+        )}</div>`;
+        var copyButtonCode = `<div class="JtbBtn jCopyButton jHsFlbkIcons jShadowLight" title="Copy code to clipboard">${getButtonCode(
+            'copy'
+        )}</div>`;
+        var maximizeButtonCode = `<div class="JtbBtn JtbBtnShowPointer jMaximizeButton jHsFlbkIcons jShadowLight" title="Fullscreen code view">${getButtonCode(
+            'max'
+        )}</div>`;
         return `<div class="jToolbar jShadow">
                     <div class="jContent">
                         <div class="jLeftSide">
                             <div class="jMessageWrapper">
                                 <div class="jMessage jHidden"></div>
+                                <div class="jRemoteSrcDisplay jHidden"></div>
                             </div>
                         </div>
                         <div class="jRightSide">
@@ -70,7 +85,6 @@ window.PrismToolbar = (function() {
                             </div>
                             ${maximizeButtonCode}
                         </div>
-                        <div class="jRemoteSrcDisplay jHidden"></div>
                     </div>
                 </div>`;
     }
@@ -91,6 +105,7 @@ window.PrismToolbar = (function() {
                 }
                 .jToolbarWrapper {
                     width: 100%;
+                    color: black;
                 }
                 .jToolbar {
                     background-color: white;
@@ -101,19 +116,20 @@ window.PrismToolbar = (function() {
                     min-height: 55px;
                     border-top-left-radius: 15px;
                     border-top-right-radius: 15px;
-                    margin-bottom: -0.6em;
+                    margin-bottom: -16px !important;
                     height: auto;
-                    position: relative;
+                    display: inline-block;
+                    width: 100%;
                 }
                 .jToolbarWrapper .jRightSide {
                     position: absolute;
                     right: 10px;
-                    top: 10px;
                     min-width: 120px;
                     max-width: 80%;
                 }
                 .jToolbarWrapper .jLeftSide {
-                    max-width: 50%;
+                    max-width: calc(100% - 180px);
+                    float: left;
                 }
                 .prismTbTgCollap[data-collapsed="false"] .isCollapsed {
                     display:none;
@@ -147,9 +163,12 @@ window.PrismToolbar = (function() {
                     left: 50%;
                     transform: translate(-50%, -50%);
                 }
+                .jToolbarWrapper .jContent {
+                    position: relative;
+                }
                 .jToolbarWrapper .jContent, JtbBtn > img, .prismTbTgCollap > .jAutCtPrnt {
                     width: 100%;
-                    height: 100%;
+                    height: 80%;
                 }
                 .jPTbStyl .jCopyButton .jFallback {
                     font-size: 1rem;
@@ -179,6 +198,7 @@ window.PrismToolbar = (function() {
                 .prismTbTgCollap {
                     display: inline-block;
                     cursor: pointer;
+                    font-size: 44px;
                 }
                 .JtbBtnShowPointer {
                     cursor: pointer;
@@ -242,6 +262,10 @@ window.PrismToolbar = (function() {
                     border: 1px dashed black;
                     padding: 4px;
                     text-align: center;
+                    /** Cut off text */
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
                 }
                 .jFscrnWrp .jHidden, .jToolbarWrapper .jHidden {
                     display: none !important;
@@ -252,7 +276,6 @@ window.PrismToolbar = (function() {
                 .jRemoteSrcDisplay {
                     text-align: center;
                     width: 100%;
-                    margin-top: 50px
                 }
                 @media only screen and (max-width: 360px){
                     .jToolbar {
@@ -275,16 +298,17 @@ window.PrismToolbar = (function() {
      */
     function PrismToolbarConstructor(inputSettings) {
         _inputSettings = typeof inputSettings === 'object' ? inputSettings : {};
-        // Controls where the toolbar is injected and if your code should be wrapped and then toolbar injected - usually yes
         this.domInstances = [];
         this.targetElementsArr = [];
         this.selector = typeof _inputSettings.selector === 'string' ? _inputSettings.selector : false;
+        const iconStyleChoices = ['emoji', 'plaintext', 'material', 'fontawesome'];
         this.settings = {
             wrapCombo: typeof _inputSettings.wrapCombo === 'boolean' ? _inputSettings.wrapCombo : true,
             animate: typeof _inputSettings.animate === 'boolean' ? _inputSettings.animate : true,
             lineWrap: typeof _inputSettings.lineWrap === 'boolean' ? _inputSettings.lineWrap : false,
             remoteSrc: typeof _inputSettings.remoteSrc === 'string' ? _inputSettings.remoteSrc : false,
-            debug: typeof _inputSettings.debug === 'boolean' ? _inputSettings.debug : false
+            debug: typeof _inputSettings.debug === 'boolean' ? _inputSettings.debug : false,
+            iconStyle: iconStyleChoices.indexOf(_inputSettings.iconStyle) !== -1 ? _inputSettings.iconStyle : 'emoji'
         };
     }
     /**
@@ -401,7 +425,7 @@ window.PrismToolbar = (function() {
                 // Now, in this context, elem is the code element (pre usually)
                 var toolbarElem = document.createElement('div');
                 toolbarElem.className = 'jToolbarWrapper jPTbStyl';
-                toolbarElem.innerHTML = getToolbarHtml();
+                toolbarElem.innerHTML = getToolbarHtml(this.settings);
 
                 // Check to see if <pre></pre> is already wrapped with toolbar wrapper - if not, wrap it
                 if (!elem.parentNode.classList.contains('jPtbWrapCombo') && config.wrapCombo) {
@@ -458,14 +482,6 @@ window.PrismToolbar = (function() {
                     if (elem.innerText.length > 0 && this.settings.debug) {
                         console.warn('Overwriting code content with AJAX content');
                     }
-                    var remoteSrcDisplayElem = toolbarElem.querySelector('.jRemoteSrcDisplay');
-                    remoteSrcDisplayElem.classList.remove('jHidden');
-                    remoteSrcDisplayElem.innerHTML =
-                        'Remote Source: <a href="' +
-                        config.remoteSrc +
-                        '" target="_blank">' +
-                        config.remoteSrc +
-                        '</a>';
                     this.loadRemoteCode(currInstance, config.remoteSrc);
                 }
             }
@@ -704,6 +720,24 @@ window.PrismToolbar = (function() {
         }, delayMs);
     };
     PrismToolbarConstructor.prototype.loadRemoteCode = function(instance, src, callback) {
+        let srcLink = src;
+        // Test for raw reversable Github link
+        const rawGhPatt = /(https{0,1}:\/\/)raw\.githubusercontent\.com(\/[^\/]+\/[^\/]+)(\/.*)/i;
+        if (rawGhPatt.test(src)) {
+            const parts = [...src.match(rawGhPatt)];
+            srcLink = `${parts[1]}github.com${parts[2]}/blob${parts[3]}`;
+        }
+        // Test for blob Github link
+        const blobGhPatt = /(https{0,1}:\/\/)github\.com(\/[^\/]+\/[^\/]+)\/blob(\/.*)/i;
+        if (blobGhPatt.test(src)) {
+            const parts = [...src.match(blobGhPatt)];
+            src = `${parts[1]}raw.githubusercontent.com${parts[2]}${parts[3]}`;
+        }
+
+        // Display link to remote
+        const remoteSrcDisplayElem = instance.toolbarElem.querySelector('.jRemoteSrcDisplay');
+        remoteSrcDisplayElem.classList.remove('jHidden');
+        remoteSrcDisplayElem.innerHTML = `Remote Source: <a href="${srcLink}" target="_blank" rel="noopener">${srcLink}</a>`;
         // @TODO - add JSONP option?
         callback = typeof callback === 'function' ? callback : () => {};
         var _this = this;

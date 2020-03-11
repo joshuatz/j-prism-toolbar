@@ -31,6 +31,7 @@ Settings key | HTML attribute key | default | description
 `animate` | `data-animate` | `true` | boolean, whether CSS animations should be used (for example, when collapsing or opening an embed)
 `lineWrap` | `data-linewrap` | `false` | boolean, whether or not the preview should use linewrap
 `remoteSrc` | `data-jptremote` | `false` | Set to a URL string that returns code as text (such as what you get when you click "view raw" on Github) and it will get pulled into the code preview box via AJAX and my tool will trigger Prism to re-highlight it
+`iconStyle` | NA | `emoji` | The style of icon to use for the toolbar. Can pick from `emoji`, `plaintext`,  `material`, or `fontawesome`. For choices other than `emoji` or `plaintext`, you must have the font pack installed.
 
 ### Notes:
  -  Almost all classes are prefixed with "j" (just like the repo) to avoid conflicts with other libraries or stylesheets.
