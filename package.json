@@ -5,7 +5,8 @@
   "main": "jPrismToolbar.js",
   "scripts": {
     "test": "jest --collectCoverage",
-    "minify": "uglifyjs jPrismToolbar.js -c -m --output jPrismToolbar.min.js"
+    "build": "parcel build jPrismToolbar.js --target browser --no-source-maps --out-file jPrismToolbar.min.js --out-dir . --experimental-scope-hoisting",
+    "minify": "npm run build"
   },
   "keywords": [],
   "author": "Joshua Tzucker",
@@ -13,7 +14,7 @@
   "devDependencies": {
     "@types/jest": "^25.1.3",
     "jest": "^25.1.0",
-    "uglify-js": "^3.6.0"
+    "parcel": "^1.12.4"
   },
   "dependencies": {},
   "jest": {
