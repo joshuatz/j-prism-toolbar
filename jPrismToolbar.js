@@ -73,6 +73,7 @@ window.PrismToolbar = (function() {
                         <div class="jLeftSide">
                             <div class="jMessageWrapper">
                                 <div class="jMessage jHidden"></div>
+                                <div class="jRemoteSrcDisplay jHidden"></div>
                             </div>
                         </div>
                         <div class="jRightSide">
@@ -84,7 +85,6 @@ window.PrismToolbar = (function() {
                             </div>
                             ${maximizeButtonCode}
                         </div>
-                        <div class="jRemoteSrcDisplay jHidden"></div>
                     </div>
                 </div>`;
     }
@@ -102,10 +102,10 @@ window.PrismToolbar = (function() {
                     margin-left: 4px;
                     overflow: hidden;
                     margin-bottom: 6px;
-                    color: black;
                 }
                 .jToolbarWrapper {
                     width: 100%;
+                    color: black;
                 }
                 .jToolbar {
                     background-color: white;
@@ -116,8 +116,10 @@ window.PrismToolbar = (function() {
                     min-height: 55px;
                     border-top-left-radius: 15px;
                     border-top-right-radius: 15px;
-                    margin-bottom: -0.6em;
+                    margin-bottom: -16px !important;
                     height: auto;
+                    display: inline-block;
+                    width: 100%;
                 }
                 .jToolbarWrapper .jRightSide {
                     position: absolute;
@@ -274,7 +276,6 @@ window.PrismToolbar = (function() {
                 .jRemoteSrcDisplay {
                     text-align: center;
                     width: 100%;
-                    margin-top: 50px
                 }
                 @media only screen and (max-width: 360px){
                     .jToolbar {
@@ -481,14 +482,6 @@ window.PrismToolbar = (function() {
                     if (elem.innerText.length > 0 && this.settings.debug) {
                         console.warn('Overwriting code content with AJAX content');
                     }
-                    var remoteSrcDisplayElem = toolbarElem.querySelector('.jRemoteSrcDisplay');
-                    remoteSrcDisplayElem.classList.remove('jHidden');
-                    remoteSrcDisplayElem.innerHTML =
-                        'Remote Source: <a href="' +
-                        config.remoteSrc +
-                        '" target="_blank">' +
-                        config.remoteSrc +
-                        '</a>';
                     this.loadRemoteCode(currInstance, config.remoteSrc);
                 }
             }
@@ -727,6 +720,17 @@ window.PrismToolbar = (function() {
         }, delayMs);
     };
     PrismToolbarConstructor.prototype.loadRemoteCode = function(instance, src, callback) {
+        let srcLink = src;
+        // Test for reversable Github link
+        const ghPatt = /(https{0,1}:\/\/)raw\.githubusercontent\.com(\/[^\/]+\/[^\/]+)(\/[^\/]+\/.*)/i;
+        if (ghPatt.test(src)) {
+            const parts = [...src.match(ghPatt)];
+            srcLink = `${parts[1]}github.com${parts[2]}/blob${parts[3]}`;
+        }
+        // Display link to remote
+        const remoteSrcDisplayElem = instance.toolbarElem.querySelector('.jRemoteSrcDisplay');
+        remoteSrcDisplayElem.classList.remove('jHidden');
+        remoteSrcDisplayElem.innerHTML = `Remote Source: <a href="${srcLink}" target="_blank">${srcLink}</a>`;
         // @TODO - add JSONP option?
         callback = typeof callback === 'function' ? callback : () => {};
         var _this = this;
