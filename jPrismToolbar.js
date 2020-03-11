@@ -721,16 +721,23 @@ window.PrismToolbar = (function() {
     };
     PrismToolbarConstructor.prototype.loadRemoteCode = function(instance, src, callback) {
         let srcLink = src;
-        // Test for reversable Github link
-        const ghPatt = /(https{0,1}:\/\/)raw\.githubusercontent\.com(\/[^\/]+\/[^\/]+)(\/[^\/]+\/.*)/i;
-        if (ghPatt.test(src)) {
-            const parts = [...src.match(ghPatt)];
+        // Test for raw reversable Github link
+        const rawGhPatt = /(https{0,1}:\/\/)raw\.githubusercontent\.com(\/[^\/]+\/[^\/]+)(\/.*)/i;
+        if (rawGhPatt.test(src)) {
+            const parts = [...src.match(rawGhPatt)];
             srcLink = `${parts[1]}github.com${parts[2]}/blob${parts[3]}`;
         }
+        // Test for blob Github link
+        const blobGhPatt = /(https{0,1}:\/\/)github\.com(\/[^\/]+\/[^\/]+)\/blob(\/.*)/i;
+        if (blobGhPatt.test(src)) {
+            const parts = [...src.match(blobGhPatt)];
+            src = `${parts[1]}raw.githubusercontent.com${parts[2]}${parts[3]}`;
+        }
+
         // Display link to remote
         const remoteSrcDisplayElem = instance.toolbarElem.querySelector('.jRemoteSrcDisplay');
         remoteSrcDisplayElem.classList.remove('jHidden');
-        remoteSrcDisplayElem.innerHTML = `Remote Source: <a href="${srcLink}" target="_blank">${srcLink}</a>`;
+        remoteSrcDisplayElem.innerHTML = `Remote Source: <a href="${srcLink}" target="_blank" rel="noopener">${srcLink}</a>`;
         // @TODO - add JSONP option?
         callback = typeof callback === 'function' ? callback : () => {};
         var _this = this;
