@@ -3,6 +3,11 @@
 const fs = require('fs');
 const testHelpers = require('./helpers/test-helpers');
 
+// Shim prism
+window['Prism'] = {
+    highlightElement: () => {},
+};
+
 // @ts-ignore
 require('../jPrismToolbar.js');
 
@@ -94,6 +99,16 @@ describe('Tests jPrismToolbar', () => {
             // alpha does not override, bravo does with attrib
             expect(testInsts.alpha.config.lineWrap).toEqual(false);
             expect(testInsts.bravo.config.lineWrap).toEqual(true);
+        });
+
+        test('It auto-fixes bad setups', () => {
+            const initRes = new PrismConstructor({
+                autoFix: true,
+            }).autoInitAll();
+            grabTestElements();
+            grabTestInstances(initRes);
+            // Check that auto-fix applied
+            expect(testElements.echo.querySelector('code').classList.contains('language-js')).toEqual(true);
         });
     });
 

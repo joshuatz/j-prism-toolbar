@@ -33,6 +33,7 @@ Settings key | HTML attribute key | default | description
 `lineWrap` | `data-linewrap` | `false` | boolean, whether or not the preview should use linewrap
 `remoteSrc` | `data-jptremote` | `false` | Set to a URL string that returns code as text (such as what you get when you click "view raw" on Github) and it will get pulled into the code preview box via AJAX and my tool will trigger Prism to re-highlight it
 `iconStyle` | NA | `emoji` | The style of icon to use for the toolbar. Can pick from `emoji`, `plaintext`,  `material`, or `fontawesome`. For choices other than `emoji` or `plaintext`, you must have the font pack installed.
+`autoFix` | NA | `false` | Use if you have code blocks that are not getting picked up by the Prism highlighter, because they don't adhere to the standard.<br><br>For example, `autoFix` can turn Pandoc output of `<pre class="js"><code></code></pre>` into the correct standard of `<pre><code class="language-js"></code></pre>`, and then re-highlight it with Prism.
 
 ### Notes:
  -  Almost all classes are prefixed with "j" (just like the repo) to avoid conflicts with other libraries or stylesheets.
