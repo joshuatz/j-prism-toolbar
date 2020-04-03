@@ -5,7 +5,7 @@
  * @license MIT
  */
 
-window.PrismToolbar = (function() {
+window.PrismToolbar = (function () {
     /**
      * Private Functions
      */
@@ -21,18 +21,18 @@ window.PrismToolbar = (function() {
             break: {
                 emoji: '↩',
                 material: 'wrap_text',
-                fa: 'fa-outdent'
+                fa: 'fa-outdent',
             },
             copy: {
                 emoji: '📋',
                 material: 'content_copy',
-                fa: 'fa-clone'
+                fa: 'fa-clone',
             },
             max: {
                 emoji: '🔎',
                 material: 'fullscreen',
-                fa: 'fa-search-plus'
-            }
+                fa: 'fa-search-plus',
+            },
         };
         function getButtonCode(buttonType) {
             if (config.iconStyle === 'material') {
@@ -308,13 +308,13 @@ window.PrismToolbar = (function() {
             lineWrap: typeof _inputSettings.lineWrap === 'boolean' ? _inputSettings.lineWrap : false,
             remoteSrc: typeof _inputSettings.remoteSrc === 'string' ? _inputSettings.remoteSrc : false,
             debug: typeof _inputSettings.debug === 'boolean' ? _inputSettings.debug : false,
-            iconStyle: iconStyleChoices.indexOf(_inputSettings.iconStyle) !== -1 ? _inputSettings.iconStyle : 'emoji'
+            iconStyle: iconStyleChoices.indexOf(_inputSettings.iconStyle) !== -1 ? _inputSettings.iconStyle : 'emoji',
         };
     }
     /**
      * Force jPrimsToolbar to evaluate inputs to determine which elements to target for adding the toolbar to
      */
-    PrismToolbarConstructor.prototype.populateListOfTargets = function() {
+    PrismToolbarConstructor.prototype.populateListOfTargets = function () {
         // Reset
         /** @type {NodeList | HTMLElement[]} */
         let _inputTargetElementsArr = [];
@@ -343,28 +343,28 @@ window.PrismToolbar = (function() {
             }
         }
     };
-    PrismToolbarConstructor.prototype.getPerInstanceConfig = function(element) {
+    PrismToolbarConstructor.prototype.getPerInstanceConfig = function (element) {
         // Copy settings from main setup
         var config = {
-            ...this.settings
+            ...this.settings,
         };
         // let inline HTML attributes override settings
         var allowedOverrides = [
             {
                 attr: 'data-linewrap',
                 setting: 'lineWrap',
-                type: 'boolean'
+                type: 'boolean',
             },
             {
                 attr: 'data-animate',
                 setting: 'animate',
-                type: 'boolean'
+                type: 'boolean',
             },
             {
                 attr: 'data-jptremote',
                 setting: 'remoteSrc',
-                type: 'string'
-            }
+                type: 'string',
+            },
         ];
         // Pull from element itself or child
         var elementsToPullFrom = [element];
@@ -407,7 +407,7 @@ window.PrismToolbar = (function() {
         }
         return config;
     };
-    PrismToolbarConstructor.prototype.init = function() {
+    PrismToolbarConstructor.prototype.init = function () {
         this.populateListOfTargets();
         if (this.targetElementsArr.length > 0) {
             if (!_injectedStyles) {
@@ -471,7 +471,7 @@ window.PrismToolbar = (function() {
                     eventsAttached: false,
                     config: config,
                     isMaximized: false,
-                    fullscreenWrapper: undefined
+                    fullscreenWrapper: undefined,
                 };
 
                 // Save
@@ -494,7 +494,7 @@ window.PrismToolbar = (function() {
                 this.initClipboardJS();
             } else {
                 setTimeout(
-                    function() {
+                    function () {
                         this.initClipboardJS();
                     }.bind(this),
                     2000
@@ -505,28 +505,28 @@ window.PrismToolbar = (function() {
         }
         return this;
     };
-    PrismToolbarConstructor.prototype.autoInit = function() {
+    PrismToolbarConstructor.prototype.autoInit = function () {
         var _this = this;
         this.selector = 'pre > code[class*="language-"]';
         this.settings.wrapCombo = false;
         if (document.querySelectorAll(this.selector).length < 1) {
-            setTimeout(function() {
+            setTimeout(function () {
                 return _this.init();
             }, 500);
         } else {
             return this.init();
         }
     };
-    PrismToolbarConstructor.prototype.initClipboardJS = function() {
+    PrismToolbarConstructor.prototype.initClipboardJS = function () {
         this.iterator(
             null,
-            function(instance) {
+            function (instance) {
                 if (instance.clipboardInitialized === false && this.getHasClipboardJS() === true) {
                     instance.ClipboardJSInstance = new ClipboardJS(instance.copyButton);
-                    instance.ClipboardJSInstance.on('success', function(e) {
+                    instance.ClipboardJSInstance.on('success', function (e) {
                         console.log(e);
                     });
-                    instance.ClipboardJSInstance.on('error', function(e) {
+                    instance.ClipboardJSInstance.on('error', function (e) {
                         console.warn('issue with ClipboardJS');
                         console.warn(e);
                     });
@@ -534,10 +534,10 @@ window.PrismToolbar = (function() {
             }.bind(this)
         );
     };
-    PrismToolbarConstructor.prototype.destroy = function() {
+    PrismToolbarConstructor.prototype.destroy = function () {
         //@TODO
     };
-    PrismToolbarConstructor.prototype.toggleCollapsed = function(instance) {
+    PrismToolbarConstructor.prototype.toggleCollapsed = function (instance) {
         if (instance.collapsed === false) {
             // Save info about the expanded state to be used later if returning
             var originalHeight = getComputedStyle(instance.codeElem).height;
@@ -547,7 +547,7 @@ window.PrismToolbar = (function() {
             // Now collapse the code block down
             instance.codeElem.style.height = originalHeight;
             // Need a delay after setting height manually to get transition animation to work
-            setTimeout(function() {
+            setTimeout(function () {
                 instance.codeElem.style.height = '3px';
                 instance.codeElem.style.padding = '3px';
                 instance.codeElem.style.overflow = 'hidden';
@@ -567,7 +567,7 @@ window.PrismToolbar = (function() {
             .querySelector('.prismTbTgCollap')
             .setAttribute('data-collapsed', instance.collapsed.toString());
     };
-    PrismToolbarConstructor.prototype.copyCode = function(instance) {
+    PrismToolbarConstructor.prototype.copyCode = function (instance) {
         // https://stackoverflow.com/a/2838358
         function selectElementText(el, win) {
             win = win || window;
@@ -597,10 +597,10 @@ window.PrismToolbar = (function() {
             this.showMessage(instance, 'Text is selected for easy copying!');
         }
     };
-    PrismToolbarConstructor.prototype.getHasClipboardJS = function() {
+    PrismToolbarConstructor.prototype.getHasClipboardJS = function () {
         return typeof window.ClipboardJS === 'function';
     };
-    PrismToolbarConstructor.prototype.toggleMaximize = function(instance) {
+    PrismToolbarConstructor.prototype.toggleMaximize = function (instance) {
         var _this = this;
         if (instance.isMaximized !== true) {
             // Construct a fullscreen wrapper
@@ -623,10 +623,10 @@ window.PrismToolbar = (function() {
             // Append fullscreen wrapper to end of page
             document.getElementsByTagName('body')[0].appendChild(fullscreenWrapper);
             // Attach event listeners for closing out of fullscreen
-            fullscreenWrapper.querySelector('.jCloseButton').addEventListener('click', function(evt) {
+            fullscreenWrapper.querySelector('.jCloseButton').addEventListener('click', function (evt) {
                 _this.toggleMaximize(instance);
             });
-            codeWrapper.addEventListener('click', function(evt) {
+            codeWrapper.addEventListener('click', function (evt) {
                 // Make sure click was NOT on code block, and was on the backdrop itself
                 if (evt.target.classList.contains('jCodeWrapper')) {
                     _this.toggleMaximize(instance);
@@ -645,7 +645,7 @@ window.PrismToolbar = (function() {
     /**
      * Toggles line wrap for a specific prism instance
      */
-    PrismToolbarConstructor.prototype.toggleLineWrap = function(instance) {
+    PrismToolbarConstructor.prototype.toggleLineWrap = function (instance) {
         var oldIsLineWrapped = instance.codeElem.classList.contains('jCodeForceLineWrap');
         instance.codeElem.classList.toggle('jCodeForceLineWrap');
         instance.toolbarElem
@@ -653,9 +653,9 @@ window.PrismToolbar = (function() {
             .setAttribute('data-linewrapon', (!oldIsLineWrapped).toString());
     };
 
-    PrismToolbarConstructor.prototype.animateButtonClick = function(buttonElement) {
+    PrismToolbarConstructor.prototype.animateButtonClick = function (buttonElement) {
         buttonElement.classList.add('justClicked');
-        setTimeout(function() {
+        setTimeout(function () {
             buttonElement.classList.remove('justClicked');
         }, 400);
     };
@@ -663,31 +663,31 @@ window.PrismToolbar = (function() {
     /**
      * Attaches event listeners to all instances that need them set up.
      */
-    PrismToolbarConstructor.prototype.attachEventListeners = function() {
+    PrismToolbarConstructor.prototype.attachEventListeners = function () {
         var _this = this;
-        this.iterator(null, function(instance) {
+        this.iterator(null, function (instance) {
             if (instance.eventsAttached === false) {
                 // Line wrap button
                 var lineWrapButton = instance.toolbarElem.querySelector('.jLineWrapButton');
-                lineWrapButton.addEventListener('click', function(evt) {
+                lineWrapButton.addEventListener('click', function (evt) {
                     _this.toggleLineWrap(instance);
                     _this.animateButtonClick(lineWrapButton);
                 });
                 // -/+ collapse button
                 var collapseButton = instance.toolbarElem.querySelector('.prismTbTgCollap');
-                collapseButton.addEventListener('click', function(evt) {
+                collapseButton.addEventListener('click', function (evt) {
                     _this.toggleCollapsed(instance);
                     _this.animateButtonClick(collapseButton);
                 });
                 // Copy button
                 var copyButton = instance.toolbarElem.querySelector('.jCopyButton');
-                copyButton.addEventListener('click', function(evt) {
+                copyButton.addEventListener('click', function (evt) {
                     _this.copyCode(instance);
                     _this.animateButtonClick(copyButton);
                 });
                 // Maximize button
                 var maximizeButton = instance.toolbarElem.querySelector('.jMaximizeButton');
-                maximizeButton.addEventListener('click', function(evt) {
+                maximizeButton.addEventListener('click', function (evt) {
                     _this.toggleMaximize(instance);
                     _this.animateButtonClick(maximizeButton);
                 });
@@ -700,7 +700,7 @@ window.PrismToolbar = (function() {
      * @param {string} [OPT_SubItem] - The key of a specific object property you would like to get in the callback instead of the full object
      * @param {function} callback - the function that will receive the instance
      */
-    PrismToolbarConstructor.prototype.iterator = function(OPT_SubItem, callback) {
+    PrismToolbarConstructor.prototype.iterator = function (OPT_SubItem, callback) {
         for (var x = 0; x < this.domInstances.length; x++) {
             if (typeof (OPT_SubItem === 'string') && OPT_SubItem in this.domInstances[x]) {
                 callback(this.domInstances[x][OPT_SubItem]);
@@ -709,17 +709,17 @@ window.PrismToolbar = (function() {
             }
         }
     };
-    PrismToolbarConstructor.prototype.showMessage = function(instance, message, OPT_delay) {
+    PrismToolbarConstructor.prototype.showMessage = function (instance, message, OPT_delay) {
         var delayMs = typeof OPT_delay === 'number' ? OPT_delay : 1000;
         var messageContainer = instance.toolbarElem.querySelector('.jMessage');
         messageContainer.classList.remove('jHidden');
         messageContainer.innerText = message;
-        setTimeout(function() {
+        setTimeout(function () {
             messageContainer.innerText = '';
             messageContainer.classList.add('jHidden');
         }, delayMs);
     };
-    PrismToolbarConstructor.prototype.loadRemoteCode = function(instance, src, callback) {
+    PrismToolbarConstructor.prototype.loadRemoteCode = function (instance, src, callback) {
         let srcLink = src;
         // Test for raw reversable Github link
         const rawGhPatt = /(https{0,1}:\/\/)raw\.githubusercontent\.com(\/[^\/]+\/[^\/]+)(\/.*)/i;
@@ -745,7 +745,7 @@ window.PrismToolbar = (function() {
         var done = false;
         this.setRemoteLoadingMode(instance, src, true, false);
         var request = new XMLHttpRequest();
-        request.addEventListener('load', function(res) {
+        request.addEventListener('load', function (res) {
             done = true;
             var rawRemoteCode = request.responseText;
             if (request.status === 200) {
@@ -757,18 +757,18 @@ window.PrismToolbar = (function() {
             callback({
                 request,
                 code: rawRemoteCode,
-                instance
+                instance,
             });
         });
         request.open('GET', src);
         request.send(null);
-        setTimeout(function() {
+        setTimeout(function () {
             if (!done) {
                 _this.setRemoteLoadingMode(instance, src, false, true);
             }
         }, TIMEOUT_MS);
     };
-    PrismToolbarConstructor.prototype.setRemoteLoadingMode = function(instance, src, isLoading, failed) {
+    PrismToolbarConstructor.prototype.setRemoteLoadingMode = function (instance, src, isLoading, failed) {
         if (isLoading) {
             this.showMessage(instance, 'Loading remote code...', 2000);
             this.setInnerContent(instance, `loading ${src} ...`, false);
@@ -785,7 +785,7 @@ window.PrismToolbar = (function() {
             }
         }
     };
-    PrismToolbarConstructor.prototype.setInnerContent = function(
+    PrismToolbarConstructor.prototype.setInnerContent = function (
         instance,
         content,
         OPT_reHighlight,
