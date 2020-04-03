@@ -10,6 +10,9 @@ require('../jPrismToolbar.js');
  * @typedef {object} TestElements
  * @property {HTMLElement} alpha
  * @property {HTMLElement} bravo
+ * @property {HTMLElement} charlie
+ * @property {HTMLElement} delta
+ * @property {HTMLElement} echo
  */
 
 describe('Tests jPrismToolbar', () => {
@@ -18,24 +21,36 @@ describe('Tests jPrismToolbar', () => {
     /** @type {TestElements} */
     let testElements = {
         alpha: null,
-        bravo: null
+        bravo: null,
+        charlie: null,
+        delta: null,
+        echo: null,
     };
     let testInsts = {
         alpha: {},
-        bravo: {}
+        bravo: {},
+        charlie: {},
+        delta: {},
+        echo: {},
     };
 
     const grabTestElements = () => {
         testElements = {
             alpha: document.getElementById('alpha'),
-            bravo: document.getElementById('bravo')
+            bravo: document.getElementById('bravo'),
+            charlie: document.getElementById('charlie'),
+            delta: document.getElementById('delta'),
+            echo: document.getElementById('echo'),
         };
     };
 
-    const grabTestInstances = initRes => {
+    const grabTestInstances = (initRes) => {
         testInsts = {
             alpha: testHelpers.getInstById(initRes.domInstances, 'alpha'),
-            bravo: testHelpers.getInstById(initRes.domInstances, 'bravo')
+            bravo: testHelpers.getInstById(initRes.domInstances, 'bravo'),
+            charlie: testHelpers.getInstById(initRes.domInstances, 'charlie'),
+            delta: testHelpers.getInstById(initRes.domInstances, 'delta'),
+            echo: testHelpers.getInstById(initRes.domInstances, 'echo'),
         };
     };
 
@@ -48,14 +63,22 @@ describe('Tests jPrismToolbar', () => {
     describe('Tests setup and initialization', () => {
         test('Inits specific instances', () => {
             new PrismConstructor({
-                selector: '#alpha'
+                selector: '#alpha',
             }).init();
             grabTestElements();
             expect(testHelpers.checkElemInit(testElements.alpha)).toBe(true);
             expect(testHelpers.checkElemInit(testElements.bravo)).toBe(false);
         });
 
-        test('Runs automatic initialization on all elements', () => {
+        test('Inits via selector passed as only arg', () => {
+            new PrismConstructor('#alpha').init();
+            grabTestElements();
+            expect(testHelpers.checkElemInit(testElements.alpha)).toBe(true);
+            expect(testHelpers.checkElemInit(testElements.bravo)).toBe(false);
+        });
+
+        test('Runs automatic initialization on all (suitable) elements', () => {
+            // Remember: autoInit() targets certain selector
             new PrismConstructor().autoInit();
             grabTestElements();
             const totalInitCount = document.querySelectorAll(testHelpers.toolbarWrapperSelector).length;
@@ -83,7 +106,7 @@ describe('Tests jPrismToolbar', () => {
         });
 
         test('Lets users collapse via button', () => {
-            return new Promise(resolver => {
+            return new Promise((resolver) => {
                 expect(testInsts.alpha.collapsed).toEqual(false);
                 testInsts.alpha.toolbarElem.querySelector('.prismTbTgCollap').click();
                 expect(testInsts.alpha.collapsed).toEqual(true);
@@ -110,10 +133,7 @@ describe('Tests jPrismToolbar', () => {
         test.skip('Preps text for copying to clipboard', () => {
             expect(window.getSelection().toString()).toEqual('');
             testInsts.alpha.toolbarElem.querySelector('.jCopyButton').click();
-            const selectedText = window
-                .getSelection()
-                .toString()
-                .trim();
+            const selectedText = window.getSelection().toString().trim();
             expect(selectedText).toEqual(`console.log('Test');`);
         });
     });
@@ -141,7 +161,7 @@ describe('Tests jPrismToolbar', () => {
         test('Can show message via method', () => {
             /** @type {HTMLElement} */
             const messageElem = testInsts.bravo.toolbarElem.querySelector('.jMessage');
-            return new Promise(resolver => {
+            return new Promise((resolver) => {
                 expect(messageElem.classList.contains('jHidden')).toEqual(true);
                 initRes.showMessage(testInsts.bravo, 'test', 10);
                 expect(messageElem.classList.contains('jHidden')).toEqual(false);
@@ -154,16 +174,16 @@ describe('Tests jPrismToolbar', () => {
         // @TODO - this works, but really should be either mocked or replayed
         test('Can load remote content', () => {
             expect.assertions(1);
-            const loaderPromise = new Promise(resolve => {
+            const loaderPromise = new Promise((resolve) => {
                 initRes.loadRemoteCode(
                     testInsts.alpha,
                     'https://raw.githubusercontent.com/joshuatz/j-prism-toolbar/master/LICENSE',
-                    loadResult => {
+                    (loadResult) => {
                         resolve(loadResult);
                     }
                 );
             });
-            return loaderPromise.then(loadResult => {
+            return loaderPromise.then((loadResult) => {
                 expect(loadResult.request.status).toEqual(200);
             });
         });

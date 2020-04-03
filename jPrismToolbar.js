@@ -298,6 +298,14 @@ window.PrismToolbar = (function () {
      */
     function PrismToolbarConstructor(inputSettings) {
         _inputSettings = typeof inputSettings === 'object' ? inputSettings : {};
+
+        // Let user pass selector as main arg to constructor, instead of config obj
+        if (typeof inputSettings === 'string') {
+            _inputSettings = {
+                selector: inputSettings,
+            };
+        }
+
         this.domInstances = [];
         this.targetElementsArr = [];
         this.selector = typeof _inputSettings.selector === 'string' ? _inputSettings.selector : false;
