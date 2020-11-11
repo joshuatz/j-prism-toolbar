@@ -192,7 +192,7 @@ describe('Tests jPrismToolbar', () => {
             const loaderPromise = new Promise((resolve) => {
                 initRes.loadRemoteCode(
                     testInsts.alpha,
-                    'https://raw.githubusercontent.com/joshuatz/j-prism-toolbar/master/LICENSE',
+                    'https://raw.githubusercontent.com/joshuatz/j-prism-toolbar/main/LICENSE',
                     (loadResult) => {
                         resolve(loadResult);
                     }

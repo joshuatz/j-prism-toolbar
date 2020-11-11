@@ -1,4 +1,4 @@
-# j-prism-toolbar ![NodeJS Test Status](https://github.com/joshuatz/j-prism-toolbar/workflows/Node.js%20CI/badge.svg)
+# j-prism-toolbar ![NodeJS Test Status](https://github.com/joshuatz/j-prism-toolbar/workflows/Node.js%20CI/badge.svg) [![NPM Badge](https://img.shields.io/npm/v/j-prism-toolbar)](https://www.npmjs.com/package/j-prism-toolbar)
 Quick toolbar thrown together for PrismJS. Typical "windows" style toolbar, with minimize/expand, fullscreen, and copy-to-clipboard buttons.
 
 See it in action all over [joshuatz.com](https://joshuatz.com/) 😄 ([example page](https://joshuatz.com/posts/2019/coding-a-css-theme-switcher-a-multitude-of-web-dev-options/))
