@@ -12,7 +12,11 @@ See it in action all over [joshuatz.com](https://joshuatz.com/) 😄 ([example p
 ---
 
 ## Instructions
-There is only one file that needs to be added to your webpage (or bundled): `dist/jPrismToolbar.min.js`.
+There is only one file that needs to be added to your webpage (or bundled): `dist/jPrismToolbar.min.js`. You can also fetch it from a CDN, for example:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/j-prism-toolbar"></script>
+```
 
 To actually instantiate and render all the toolbars, it is usually as easy as creating a new instance and calling autoInit. For example, if you always wrap your code like
 
@@ -45,7 +49,7 @@ Here is a full sample:
     </pre>
 
     <!-- Sample of how to load and init the toolbar -->
-    <script src="./dist/jPrismToolbar.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/j-prism-toolbar"></script>
     <script>
         (new PrismToolbar()).autoInit();
     </script>
