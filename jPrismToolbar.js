@@ -80,8 +80,8 @@ window.PrismToolbar = (function () {
                             ${lineWrapButtonCode}
                             ${copyButtonCode}
                             <div class="prismTbTgCollap JtbBtn JtbBtnShowPointer jShadowLight" data-collapsed="false" title="Toggle collapse of code embed">
-                                <div class="isNotCollapsed jAutCtPrnt"><div>-</div></div>
-                                <div class="isCollapsed jAutCtPrnt"><div>+</div></div>
+                                <div class="isNotCollapsed jAutCtPrnt jIconWrapper"><div style="margin-top:-4px">-</div></div>
+                                <div class="isCollapsed jAutCtPrnt jIconWrapper"><div>+</div></div>
                             </div>
                             ${maximizeButtonCode}
                         </div>
@@ -168,7 +168,6 @@ window.PrismToolbar = (function () {
                 }
                 .jToolbarWrapper .jContent, JtbBtn > img, .prismTbTgCollap > .jAutCtPrnt {
                     width: 100%;
-                    height: 80%;
                 }
                 .jPTbStyl .jCopyButton .jFallback {
                     font-size: 1rem;
@@ -195,10 +194,8 @@ window.PrismToolbar = (function () {
                     left: 0px !important;
                     
                 }
-                .prismTbTgCollap {
-                    display: inline-block;
-                    cursor: pointer;
-                    font-size: 44px;
+                .prismTbTgCollap div {
+                    font-size: 40px;
                 }
                 .JtbBtnShowPointer {
                     cursor: pointer;
@@ -591,7 +588,7 @@ window.PrismToolbar = (function () {
     PrismToolbarConstructor.prototype.toggleCollapsed = function (instance) {
         if (instance.collapsed === false) {
             // Save info about the expanded state to be used later if returning
-            var originalHeight = getComputedStyle(instance.codeElem).height;
+            const originalHeight = getComputedStyle(instance.codeElem).height;
             instance.codeElem.setAttribute('data-jexpandedheight', originalHeight);
             instance.codeElem.setAttribute('data-jexpandedpadding', getComputedStyle(instance.codeElem).padding);
             instance.codeElem.setAttribute('data-jexpandedoverflow', getComputedStyle(instance.codeElem).overflow);
@@ -664,10 +661,10 @@ window.PrismToolbar = (function () {
                 </div>
             </div>`;
             // Create code wrapper
-            var codeWrapper = document.createElement('div');
+            const codeWrapper = document.createElement('div');
             codeWrapper.className = 'jCodeWrapper jAutCtPrnt';
             // Copy actual code element to code wrapper
-            var codeClone = instance.codeElem.cloneNode(true);
+            const codeClone = instance.codeElem.cloneNode(true);
             // Append code clone to wrapper
             codeWrapper.appendChild(codeClone);
             fullscreenWrapper.appendChild(codeWrapper);
@@ -697,7 +694,7 @@ window.PrismToolbar = (function () {
      * Toggles line wrap for a specific prism instance
      */
     PrismToolbarConstructor.prototype.toggleLineWrap = function (instance) {
-        var oldIsLineWrapped = instance.codeElem.classList.contains('jCodeForceLineWrap');
+        const oldIsLineWrapped = instance.codeElem.classList.contains('jCodeForceLineWrap');
         instance.codeElem.classList.toggle('jCodeForceLineWrap');
         instance.toolbarElem
             .querySelector('.jPTbrTogLWrap')
@@ -715,29 +712,29 @@ window.PrismToolbar = (function () {
      * Attaches event listeners to all instances that need them set up.
      */
     PrismToolbarConstructor.prototype.attachEventListeners = function () {
-        var _this = this;
+        const _this = this;
         this.iterator(null, function (instance) {
             if (instance.eventsAttached === false) {
                 // Line wrap button
-                var lineWrapButton = instance.toolbarElem.querySelector('.jLineWrapButton');
+                const lineWrapButton = instance.toolbarElem.querySelector('.jLineWrapButton');
                 lineWrapButton.addEventListener('click', function (evt) {
                     _this.toggleLineWrap(instance);
                     _this.animateButtonClick(lineWrapButton);
                 });
                 // -/+ collapse button
-                var collapseButton = instance.toolbarElem.querySelector('.prismTbTgCollap');
+                const collapseButton = instance.toolbarElem.querySelector('.prismTbTgCollap');
                 collapseButton.addEventListener('click', function (evt) {
                     _this.toggleCollapsed(instance);
                     _this.animateButtonClick(collapseButton);
                 });
                 // Copy button
-                var copyButton = instance.toolbarElem.querySelector('.jCopyButton');
+                const copyButton = instance.toolbarElem.querySelector('.jCopyButton');
                 copyButton.addEventListener('click', function (evt) {
                     _this.copyCode(instance);
                     _this.animateButtonClick(copyButton);
                 });
                 // Maximize button
-                var maximizeButton = instance.toolbarElem.querySelector('.jMaximizeButton');
+                const maximizeButton = instance.toolbarElem.querySelector('.jMaximizeButton');
                 maximizeButton.addEventListener('click', function (evt) {
                     _this.toggleMaximize(instance);
                     _this.animateButtonClick(maximizeButton);

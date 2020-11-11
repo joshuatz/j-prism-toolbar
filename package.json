@@ -1,16 +1,31 @@
 {
   "name": "j-prism-toolbar",
   "version": "1.2.0",
-  "description": "Quick toolbar thrown together for PrismJS. Typical \"windows\" style toolbar, with minimize/expand, fullscreen, and copy-to-clipboard buttons.\r ##",
-  "main": "jPrismToolbar.js",
+  "description": "Simple toolbar for PrismJS. Typical 'windows' style toolbar, with minimize/expand, fullscreen, and copy-to-clipboard buttons.",
+  "main": "dist/jPrismToolbar.min.js",
   "scripts": {
     "test": "jest --collectCoverage",
-    "build": "parcel build jPrismToolbar.js --target browser --no-source-maps --out-file jPrismToolbar.min.js --out-dir . --experimental-scope-hoisting",
+    "build": "parcel build jPrismToolbar.js --target browser --no-source-maps --out-file jPrismToolbar.min.js --out-dir ./dist --experimental-scope-hoisting",
     "minify": "npm run build"
   },
-  "keywords": [],
-  "author": "Joshua Tzucker",
+  "keywords": [
+    "prismjs",
+    "prism",
+    "decoration"
+  ],
+  "author": {
+    "name": "Joshua Tzucker",
+    "url": "https://joshuatz.com/?utm_source=package"
+  },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joshuatz/j-prism-toolbar.git"
+  },
+  "homepage": "https://github.com/joshuatz/j-prism-toolbar",
+  "bugs": {
+    "url": "https://github.com/joshuatz/j-prism-toolbar/issues"
+  },
   "devDependencies": {
     "@types/jest": "^25.2.1",
     "jest": "^25.2.7"
@@ -18,6 +33,9 @@
   "dependencies": {
     "parcel-bundler": "^1.12.4"
   },
+  "files": [
+    "dist/jPrismToolbar.min.js"
+  ],
   "jest": {
     "testEnvironmentOptions": {
       "runScripts": "dangerously",

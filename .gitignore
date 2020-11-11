@@ -3,6 +3,9 @@ node_modules
 
 # Testing
 coverage
+scratchpad.*
 
 # Build
 .cache
+dist
+jPrismToolbar.min.js
