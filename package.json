@@ -1,6 +1,6 @@
 {
   "name": "j-prism-toolbar",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Simple toolbar for PrismJS. Typical 'windows' style toolbar, with minimize/expand, fullscreen, and copy-to-clipboard buttons.",
   "main": "dist/jPrismToolbar.min.js",
   "scripts": {

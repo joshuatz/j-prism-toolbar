@@ -102,6 +102,9 @@ Settings key | HTML attribute key | default | description
 `remoteSrc` | `data-jptremote` | `false` | Set to a URL string that returns code as text (such as what you get when you click "view raw" on Github) and it will get pulled into the code preview box via AJAX and my tool will trigger Prism to re-highlight it
 
 ### Notes:
+
  -  Almost all classes are prefixed with "j" (just like the repo) to avoid conflicts with other libraries or stylesheets.
  -  Certain buttons try to use icons, but will fallback gracefully depending on what you have installed. It will try font-awesome -> materializecss -> fallback
- -  For the "copy-to-clipboard" feature, it will try to use ClipboardJS, but if it is not available within the global window scope, it will fall back to just selecting the text and letting the user either right click or use CTRL+C.
+ -  For the "copy-to-clipboard" feature, it will try to use ClipboardJS, but if it is not available within the global window scope, it will fall back to:
+     1. Trying the browser API (`navigator.clipboard`)
+     2. Selecting the text and prompting user to copy themselves

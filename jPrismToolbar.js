@@ -16,6 +16,25 @@ window.PrismToolbar = (function () {
         escaped = escaped.replace(/>/g, '&gt;');
         return escaped;
     }
+    // https://stackoverflow.com/a/2838358
+    function selectElementText(el, win) {
+        win = win || window;
+        var doc = win.document,
+            sel,
+            range;
+        /* istanbul ignore next */
+        if (win.getSelection && doc.createRange) {
+            sel = win.getSelection();
+            range = doc.createRange();
+            range.selectNodeContents(el);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        } else if (doc.body.createTextRange) {
+            range = doc.body.createTextRange();
+            range.moveToElementText(el);
+            range.select();
+        }
+    }
     function getToolbarHtml(config) {
         const iconMap = {
             break: {
@@ -310,6 +329,7 @@ window.PrismToolbar = (function () {
         this.targetElementsArr = [];
         this.selector = typeof _inputSettings.selector === 'string' ? _inputSettings.selector : false;
         const iconStyleChoices = ['emoji', 'plaintext', 'material', 'fontawesome'];
+        /** @type {GlobalConfig} */
         this.settings = {
             wrapCombo: typeof _inputSettings.wrapCombo === 'boolean' ? _inputSettings.wrapCombo : true,
             animate: typeof _inputSettings.animate === 'boolean' ? _inputSettings.animate : true,
@@ -470,6 +490,7 @@ window.PrismToolbar = (function () {
                 }
 
                 // Wrap up all properties into a nice "instance" object
+                /** @type {ToolbarInstance} */
                 var currInstance = {
                     container: elem.parentNode,
                     codeElem: elem,
@@ -582,9 +603,6 @@ window.PrismToolbar = (function () {
             }.bind(this)
         );
     };
-    PrismToolbarConstructor.prototype.destroy = function () {
-        //@TODO
-    };
     PrismToolbarConstructor.prototype.toggleCollapsed = function (instance) {
         if (instance.collapsed === false) {
             // Save info about the expanded state to be used later if returning
@@ -615,34 +633,38 @@ window.PrismToolbar = (function () {
             .querySelector('.prismTbTgCollap')
             .setAttribute('data-collapsed', instance.collapsed.toString());
     };
-    PrismToolbarConstructor.prototype.copyCode = function (instance) {
-        // https://stackoverflow.com/a/2838358
-        function selectElementText(el, win) {
-            win = win || window;
-            var doc = win.document,
-                sel,
-                range;
-            /* istanbul ignore next */
-            if (win.getSelection && doc.createRange) {
-                sel = win.getSelection();
-                range = doc.createRange();
-                range.selectNodeContents(el);
-                sel.removeAllRanges();
-                sel.addRange(range);
-            } else if (doc.body.createTextRange) {
-                range = doc.body.createTextRange();
-                range.moveToElementText(el);
-                range.select();
-            }
-        }
+    /**
+     *
+     * @param {ToolbarInstance} instance
+     * @param {MouseEvent} [evt]
+     */
+    PrismToolbarConstructor.prototype.copyCode = function (instance, evt) {
+        let success = false;
         // Check for ClipboardJS
         /* istanbul ignore next */
         if (this.getHasClipboardJS() === true) {
             // Do nothing, since ClipboardJS is initialized elsewhere and handles via HTML attributes
-            this.showMessage(instance, 'Copied to clipboard!');
+            success = true;
         } else {
+            const text = instance.codeElem.innerText;
+
+            // browser API
+            if (navigator.clipboard) {
+                try {
+                    navigator.clipboard.writeText(text);
+                    success = true;
+                } catch (err) {
+                    console.error(`Error copying to clipboard`, err);
+                }
+            }
+        }
+
+        // If failed to copy to clipboard, pre-select text and alert user
+        if (!success) {
             selectElementText(instance.codeElem, window);
             this.showMessage(instance, 'Text is selected for easy copying!');
+        } else {
+            this.showMessage(instance, 'Copied to clipboard!');
         }
     };
     PrismToolbarConstructor.prototype.getHasClipboardJS = function () {
@@ -730,7 +752,7 @@ window.PrismToolbar = (function () {
                 // Copy button
                 const copyButton = instance.toolbarElem.querySelector('.jCopyButton');
                 copyButton.addEventListener('click', function (evt) {
-                    _this.copyCode(instance);
+                    _this.copyCode(instance, evt);
                     _this.animateButtonClick(copyButton);
                 });
                 // Maximize button
