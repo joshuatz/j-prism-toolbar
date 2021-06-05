@@ -39,6 +39,7 @@
     "dist/jPrismToolbar.min.js"
   ],
   "jest": {
+    "testEnvironment": "jsdom",
     "testEnvironmentOptions": {
       "runScripts": "dangerously",
       "resources": "usable"
