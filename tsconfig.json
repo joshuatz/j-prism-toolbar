@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "checkJs": true,
+        "noEmit": false,
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "strict": true,
+        "moduleResolution": "node",
+        "target": "ES2015",
+        "outFile": "./dist/types.d.ts"
+    },
+    "include": ["./src/**/*", "./globals.d.ts"],
+}
