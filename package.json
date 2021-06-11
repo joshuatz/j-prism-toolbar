@@ -2,11 +2,18 @@
   "name": "j-prism-toolbar",
   "version": "1.2.3",
   "description": "Simple toolbar for PrismJS. Typical 'windows' style toolbar, with minimize/expand, fullscreen, and copy-to-clipboard buttons.",
-  "main": "dist/jPrismToolbar.min.js",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
+  },
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "jest --collectCoverage",
-    "build": "parcel build jPrismToolbar.js --target browser --no-source-maps --out-file jPrismToolbar.min.js --out-dir ./dist --experimental-scope-hoisting",
-    "minify": "npm run build"
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --collectCoverage",
+    "build:web": "tsup src/jPrismToolbar.web.js --minify --format iife && mv dist/jPrismToolbar.web.global.js dist/jPrismToolbar.min.js",
+    "build:node": "tsup src/index.js --dts src/index.js --format cjs,esm",
+    "build": "npm run build:node && npm run build:web"
   },
   "keywords": [
     "prismjs",
@@ -28,8 +35,10 @@
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
+    "cross-env": "^7.0.3",
     "jest": "^27.0.4",
     "parcel-bundler": "^1.12.4",
+    "tsup": "^4.11.2",
     "typescript": "^4.3.2"
   },
   "dependencies": {},
@@ -37,13 +46,21 @@
     "node-forge": "0.10.0"
   },
   "files": [
-    "dist/jPrismToolbar.min.js"
+    "/dist"
   ],
   "jest": {
     "testEnvironment": "jsdom",
     "testEnvironmentOptions": {
       "runScripts": "dangerously",
       "resources": "usable"
-    }
+    },
+    "testMatch": [
+      "<rootDir>/tests/**/*.test.*"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "ts",
+      "mjs"
+    ]
   }
 }

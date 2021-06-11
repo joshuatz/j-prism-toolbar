@@ -8,7 +8,7 @@ import { LangKeys } from './constants';
 import { JPrismToolbarUI } from './ui';
 import { basicHtmlEscape, selectElementText } from './utils';
 
-export class JPrismToolbar {
+export class PrismToolbar {
     /**
      * Private Members
      */
@@ -26,7 +26,7 @@ export class JPrismToolbar {
     /** @type {string | undefined}  */
     selector = undefined;
 
-    /** @param {Partial<GlobalConfig>} inputSettings */
+    /** @param {Partial<GlobalConfig> | string} [inputSettings] */
     constructor(inputSettings) {
         this.#_inputSettings = typeof inputSettings === 'object' ? inputSettings : {};
 
@@ -443,10 +443,10 @@ export class JPrismToolbar {
             fullscreenWrapper.className = 'jFscrnWrp jPTbStyl';
             // Create toolbar
             fullscreenWrapper.innerHTML = `<div class="jFullscreenToolbar">
-                <div class="jFscreenTBtnWrp">
-                    <div class="jFullscreenToolbarButton jCloseButton">X</div>
-                </div>
-            </div>`;
+                  <div class="jFscreenTBtnWrp">
+                      <div class="jFullscreenToolbarButton jCloseButton">X</div>
+                  </div>
+              </div>`;
             // Create code wrapper
             const codeWrapper = document.createElement('div');
             codeWrapper.className = 'jCodeWrapper jAutCtPrnt';
@@ -679,4 +679,4 @@ export class JPrismToolbar {
     }
 }
 
-window.PrismToolbar = JPrismToolbar;
+export default PrismToolbar;

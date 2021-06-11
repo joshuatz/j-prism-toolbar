@@ -1,13 +1,13 @@
 // @ts-check
 
-const toolbarWrapperSelector = '.jToolbarWrapper';
+export const toolbarWrapperSelector = '.jToolbarWrapper';
 
 /**
  * Test whether an element is (or contains) an initialized jPrismToolbar instance
  * @param {HTMLElement} elem
  * @returns {boolean}
  */
-const checkElemInit = elem => {
+export const checkElemInit = (elem) => {
     // Check self or children
     let toolbarWrapper = elem.matches(toolbarWrapperSelector) ? elem : elem.querySelector(toolbarWrapperSelector);
     if (!toolbarWrapper && elem.nodeName === 'PRE') {
@@ -18,8 +18,8 @@ const checkElemInit = elem => {
     return !!toolbarWrapper && toolbarWrapper.querySelectorAll('*').length > 2;
 };
 
-const getInstBySelector = (domInstances, selector) => {
-    return domInstances.filter(instance => {
+export const getInstBySelector = (domInstances, selector) => {
+    return domInstances.filter((instance) => {
         return instance.codeElem.matches(selector);
     });
 };
@@ -29,18 +29,10 @@ const getInstBySelector = (domInstances, selector) => {
  * @param {string} elementId
  * @returns {object | undefined}
  */
-const getInstById = (domInstances, elementId) => {
+export const getInstById = (domInstances, elementId) => {
     return getInstBySelector(domInstances, `#${elementId}`)[0];
 };
 
-const logDom = () => {
+export const logDom = () => {
     console.log(document.body.innerHTML);
-};
-
-module.exports = {
-    checkElemInit,
-    toolbarWrapperSelector,
-    logDom,
-    getInstBySelector,
-    getInstById
 };

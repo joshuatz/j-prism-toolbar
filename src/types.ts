@@ -1,3 +1,5 @@
+import { PrismToolbar } from "./toolbar";
+
 export interface InstanceConfig {
     wrapCombo: boolean;
     iconStyle: 'emoji' | 'plaintext' | 'material' | 'fontawesome';
@@ -54,4 +56,10 @@ export declare class ClipboardJS {
         callback: (event: Event) => void
     ): void;
     public destroy(): void;
+}
+
+declare global {
+    interface Window {
+        PrismToolbar: typeof PrismToolbar
+    }
 }

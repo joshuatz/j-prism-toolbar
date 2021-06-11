@@ -1,4 +1,4 @@
-import { JPrismToolbar } from "./src/jPrismToolbar";
+import { PrismToolbar } from "./src/toolbar";
 import type { ClipboardJS as ClipboardJSClass } from "./src/types";
 
 declare global {
@@ -9,7 +9,7 @@ declare global {
     }
 
     interface Window {
-        PrismToolbar: typeof JPrismToolbar
+        PrismToolbar: typeof PrismToolbar
         ClipboardJS?: typeof ClipboardJSClass;
         Prism: Prism;
     }

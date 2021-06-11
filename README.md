@@ -11,12 +11,29 @@ See it in action all over [joshuatz.com](https://joshuatz.com/) 😄 ([example p
 
 ---
 
-## Instructions
-There is only one file that needs to be added to your webpage (or bundled): `dist/jPrismToolbar.min.js`. You can also fetch it from a CDN, for example:
+
+## Installation
+### Loading via Script Tag
+There is only one file that needs to be added to your webpage (or bundled): `dist/jPrismToolbar.min.js`. As an alternative to adding this as a dependency, you can also fetch it directly from a CDN, for example:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/j-prism-toolbar"></script>
+<script src="https://cdn.jsdelivr.net/npm/j-prism-toolbar@1.2.3/dist/jPrismToolbar.min.js"></script>
 ```
+
+### Loading Via Imports
+If you are using a bundler, you can use the CommonJS or ESM exports provided by this package.
+
+```js
+// ESM
+import {PrismToolbar} from 'j-prism-toolbar'
+
+// CJS
+const {PrismToolbar} = require('j-prism-toolbar');
+```
+
+There are also type definitions included in this package, which both TypeScript and IDEs like VSCode can take advantage of for better type-safety and Intellisense support.
+
+## Usage
 
 To actually instantiate and render all the toolbars, it is usually as easy as creating a new instance and calling autoInit. For example, if you always wrap your code like
 
@@ -36,8 +53,6 @@ Then adding the toolbar is as simple as:
 
 > You can also pass a custom CSS selector to `.autoInit()`
 
----
-
 ### Sample
 Here is a full sample:
 
@@ -55,8 +70,6 @@ Here is a full sample:
     </script>
 </body>
 ```
-
----
 
 ### Advanced Usage
 Certain settings can be controlled on a 'per instance' basis and can be either passed into the constructor or added as attributes on the code element. Some settings are global.
@@ -91,6 +104,7 @@ const instance = new PrismToolbar({
     remoteSrc: false
 });
 ```
+
 #### Per-Embed Settings
 
 These settings can be changed per-embed (aka *per-instance*), and controlled via HTML attributes. If set, they will override the global settings (see above section).
@@ -101,10 +115,16 @@ Settings key | HTML attribute key | default | description
 `lineWrap` | `data-linewrap` | `false` | boolean, whether or not the preview should use linewrap
 `remoteSrc` | `data-jptremote` | `false` | Set to a URL string that returns code as text (such as what you get when you click "view raw" on Github) and it will get pulled into the code preview box via AJAX and my tool will trigger Prism to re-highlight it
 
-### Notes:
+## Notes:
 
  -  Almost all classes are prefixed with "j" (just like the repo) to avoid conflicts with other libraries or stylesheets.
  -  Certain buttons try to use icons, but will fallback gracefully depending on what you have installed. It will try font-awesome -> materializecss -> fallback
  -  For the "copy-to-clipboard" feature, it will try to use ClipboardJS, but if it is not available within the global window scope, it will fall back to:
      1. Trying the browser API (`navigator.clipboard`)
      2. Selecting the text and prompting user to copy themselves
+
+## Changelog
+Version | Date | Notes
+--- | --- | ---
+`v1.3.0` | @TODO| Major refactor, started exporting types, support ESM and CJS imports
+`v1.2.3` | 1/10/21 | Upgraded "copy-to-clipboard" feature

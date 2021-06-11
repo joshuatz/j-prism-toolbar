@@ -1,7 +1,11 @@
 // @ts-check
 /// <reference types="jest" />
-const fs = require('fs');
-const testHelpers = require('./helpers/test-helpers');
+import fs from 'fs';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import * as testHelpers from './helpers';
+
+import '../src/jPrismToolbar.web';
 
 // Shim prism
 window['Prism'] = {
@@ -9,7 +13,7 @@ window['Prism'] = {
 };
 
 // @ts-ignore
-require('../jPrismToolbar.js');
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /**
  * @typedef {object} TestElements
