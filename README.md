@@ -77,32 +77,62 @@ Certain settings can be controlled on a 'per instance' basis and can be either p
 #### Global Settings
 > Default values are shown. All settings are optional, and you can pass a single CSS selector string to constructor instead of options.selector, if you prefer.
 
-```js
-const instance = new PrismToolbar({
-    // Used for .autoInit()
-    // CSS selector used to find code elements to inject toolbar into.
-    selector: 'pre > code[class*="language-"]',
-    // Alternative to above setting (and overrides it)
-    targetElements: [] // NodeList
-    // boolean, whether or not the toolbar + code embed should be wrapped *together* in wrapper, or just have toolbar and code elem be sibling
-    wrapCombo: true // unless using autoInit(), then false
-    // The style of icon to use for the toolbar. Can pick from `emoji`, `plaintext`,  `material`, or `fontawesome`.
-    // For choices other than `emoji` or `plaintext`, you must have the font pack installed.
-    iconStyle: 'emoji',
-    // Use if you have code blocks that are not getting picked up by the Prism highlighter, because they don't adhere to the standard.
-    // For example, `autoFix` can turn Pandoc output of `<pre class="js"><code></code></pre>` into the correct standard of `<pre><code class="language-js"></code></pre>`, and then re-highlight it with Prism.
-    autoFix: false,
-    /**
-     * The following settings can also be overridden on a per-instance basis, through HTML attributes
-     * See below section for details
+```ts
+interface GlobalConfig {
+     /**
+     * CSS selector used to find code elements to inject toolbar into.
+     *  - Used for .autoInit()
+     * @default 'pre > code[class*="language-"]'
      */
-    // Use CSS animations
-    animate: true,
-    // Use linewrap
-    lineWrap: false,
-    // If set to a URL string that returns text, it will be loaded into the embed
-    remoteSrc: false
-});
+    selector?: string;
+    /**
+     * Alternative to `selector` (and overrides it)
+     */
+    targetElements?: NodeListOf<HTMLElement> | HTMLElement;
+    /**
+     * Extra logging
+     * @default false
+     */
+    debug: boolean;
+    /**
+     * Whether or not the toolbar + code embed should be wrapped *together* in wrapper, or just have toolbar and code elem be sibling
+     * @default true
+     */
+    wrapCombo: boolean;
+    /**
+     * The style of icon to use for the toolbar.
+     * For choices other than `emoji` or `plaintext`, you must have the font pack installed.
+     * @default 'emoji'
+     */
+    iconStyle: 'emoji' | 'plaintext' | 'material' | 'fontawesome';
+    /**
+     * Use if you have code blocks that are not getting picked up by the Prism highlighter, because they don't adhere to the standard.
+     * - For example, `autoFix` can turn Pandoc output of `<pre class="js"><code></code></pre>` into the correct standard of `<pre><code class="language-js"></code></pre>`, and then re-highlight it with Prism.
+     * @default false
+     */
+    autoFix: boolean;
+    // The following settings can also be overridden on a per-instance basis, through HTML attributes
+    /**
+     * Use CSS animations
+     * @default true
+     */
+    animate: boolean;
+    /**
+     * Use linewrap - e.g. white-space: pre-wrap
+     */
+    lineWrap: boolean;
+    /**
+     * If set to a URL string that returns text, it will be loaded into the embed
+     * @default false
+     */
+    remoteSrc: boolean | string;
+}
+
+const myConfig: GlobalConfig = {
+    // ...
+}
+
+const myToolbarManager = new PrismToolbar(myConfig);
 ```
 
 #### Per-Embed Settings
