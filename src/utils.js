@@ -32,3 +32,15 @@ export function selectElementText(el, win) {
         }
     }
 }
+
+/**
+ * Get a link that opens in a new tab, with noopener
+ * @param {string} url
+ * @param {string | null} [linkText]
+ * @param {string} [style]
+ */
+export function getNewTabLink(url, linkText, style) {
+    return `<a target="_blank" rel="noopener" href="${url}"${!!style ? ` style="${style}"` : ''}>${
+        linkText || url
+    }</a>`;
+}

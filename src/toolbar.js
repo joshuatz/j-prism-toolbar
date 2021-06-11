@@ -4,9 +4,9 @@
  * @typedef {import('./types').ToolbarInstance} ToolbarInstance
  */
 
-import { LangKeys } from './constants';
+import { LangKeys, PkgPrefix } from './constants';
 import { JPrismToolbarUI } from './ui';
-import { basicHtmlEscape, selectElementText } from './utils';
+import { basicHtmlEscape, getNewTabLink, selectElementText } from './utils';
 
 export class PrismToolbar {
     /**
@@ -15,10 +15,12 @@ export class PrismToolbar {
     /** @type {Partial<GlobalConfig>} */
     #_inputSettings = {};
     #_injectedStyles = false;
+    #_idCounter = 0;
 
     /**
      * Public Members
      */
+    debug = false;
     /** @type {ToolbarInstance[]} */
     domInstances = [];
     /** @type {HTMLElement[]} */
@@ -56,113 +58,52 @@ export class PrismToolbar {
                 : 'emoji',
             autoFix: typeof this.#_inputSettings.autoFix === 'boolean' ? this.#_inputSettings.autoFix : false,
         };
+        this.debug = this.settings.debug;
 
         this.uiController = new JPrismToolbarUI(this.settings);
+
+        if (!this.#_injectedStyles) {
+            var styleBlock = document.createElement('style');
+            styleBlock.innerText = this.uiController.getToolbarCss();
+            document.getElementsByTagName('body')[0].appendChild(styleBlock);
+            this.#_injectedStyles = true;
+        }
     }
 
-    init() {
+    getNewInstanceId() {
+        return `jPtbId_${++this.#_idCounter}`;
+    }
+
+    /**
+     * Main initialization function
+     *  - Uses inputs from constructor arguments / settings
+     */
+    async init() {
+        /** @type {Promise<any>[]} */
+        const promiseArr = [];
         this.populateListOfTargets();
         if (this.targetElementsArr.length > 0) {
-            if (!this.#_injectedStyles) {
-                var styleBlock = document.createElement('style');
-                styleBlock.innerText = this.uiController.getToolbarCss();
-                document.getElementsByTagName('body')[0].appendChild(styleBlock);
-                this.#_injectedStyles = true;
-            }
             // Main toolbar injector iterator
             for (var x = 0; x < this.targetElementsArr.length; x++) {
                 // Get per-instance config
                 const elem = this.targetElementsArr[x];
-                const config = this.getPerInstanceConfig(elem);
-
-                // Now, in this context, elem is the code element (pre usually)
-                const toolbarElem = document.createElement('div');
-                toolbarElem.className = 'jToolbarWrapper jPTbStyl';
-                toolbarElem.innerHTML = this.uiController.getToolbarHtml(this.settings);
-
-                // Check to see if <pre></pre> is already wrapped with toolbar wrapper - if not, wrap it
-                if (elem.parentElement && !elem.parentElement.classList.contains('jPtbWrapCombo') && config.wrapCombo) {
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'jPtbWrapCombo';
-                    // Add the wrapper as a sibling, before, of the code container
-                    elem.parentElement.insertBefore(wrapper, elem);
-                    // move into wrapper
-                    wrapper.appendChild(elem);
-                }
-
-                // No matter what, toolbar wrapper is now in place, and elem definitely has parent element
-                const parentElem = /** @type {HTMLElement} */ (elem.parentElement);
-
-                // Toolbar should be added BEFORE <pre></pre>, not inside it
-                parentElem.insertBefore(toolbarElem, elem);
-
-                // Directly add transition CSS to elements
-                if (config.animate) {
-                    elem.style.transition = 'all 1s';
-                }
-
-                // Generate ID for code element and set as target of copy button
-                let codeElemId = elem.getAttribute('id');
-                const copyButton = /** @type {HTMLElement} */ (toolbarElem.querySelector('.jCopyButton'));
-                if (!codeElemId || codeElemId === '') {
-                    codeElemId = 'jCodeElem_' + x;
-                    elem.setAttribute('id', codeElemId);
-                }
-                copyButton.setAttribute('data-clipboard-target', '#' + codeElemId);
-
-                // See if line-wrap should be turned on to start with
-                if (config.lineWrap) {
-                    elem.classList.add('jCodeForceLineWrap');
-                    // @ts-ignore
-                    toolbarElem.querySelector('.jPTbrTogLWrap').setAttribute('data-linewrapon', 'true');
-                }
-
-                // Wrap up all properties into a nice "instance" object
-                /** @type {ToolbarInstance} */
-                var currInstance = {
-                    container: parentElem,
-                    codeElem: elem,
-                    toolbarElem: toolbarElem,
-                    collapsed: false,
-                    copyButton: copyButton,
-                    clipboardInitialized: false,
-                    eventsAttached: false,
-                    config: config,
-                    isMaximized: false,
-                    fullscreenWrapper: undefined,
-                };
-
-                // Save
-                this.domInstances.push(currInstance);
-
-                // Check if instance is supposed to pull content from remote URL
-                if (typeof config.remoteSrc === 'string' && !!config.remoteSrc) {
-                    if (elem.innerText.length > 0 && this.settings.debug) {
-                        console.warn('Overwriting code content with AJAX content');
-                    }
-                    this.loadRemoteCode(currInstance, config.remoteSrc);
-                }
-
-                // Check if we should apply auto-fix
-                if (config.autoFix) {
-                    this.autoFix(elem);
-                }
-            }
-
-            // Attach event listeners
-            this.attachEventListeners();
-
-            // Init ClipboardJS
-            if (this.getHasClipboardJS() === true) {
-                this.initClipboardJS();
-            } else {
-                setTimeout(() => {
-                    this.initClipboardJS();
-                }, 2000);
+                promiseArr.push(this.initOnElem(elem));
             }
         } else {
             console.warn('init was called, but no suitable targets could be found');
         }
+
+        await Promise.all(promiseArr);
+
+        // Init ClipboardJS
+        if (this.getHasClipboardJS() === true) {
+            this.initClipboardJS();
+        } else {
+            setTimeout(() => {
+                this.initClipboardJS();
+            }, 2000);
+        }
+
         return this;
     }
 
@@ -170,12 +111,15 @@ export class PrismToolbar {
      * Attempts to run initialization for elements matching selector
      * @param {string} [OPT_autoSelector]
      */
-    autoInit(OPT_autoSelector) {
+    async autoInit(OPT_autoSelector) {
         let initRes;
         const originalSelector = this.selector;
-        this.selector = typeof OPT_autoSelector === 'string' ? OPT_autoSelector : 'pre > code[class*="language-"]';
+        this.selector =
+            typeof OPT_autoSelector === 'string'
+                ? OPT_autoSelector
+                : 'pre > code[class*="language-"], code[data-jptremote]';
         this.settings.wrapCombo = false;
-        initRes = this.init();
+        initRes = await this.init();
 
         // Reset
         this.selector = originalSelector;
@@ -188,6 +132,92 @@ export class PrismToolbar {
      */
     autoInitAll() {
         return this.autoInit('pre > code[class*="language-"], pre[class] > code');
+    }
+
+    /**
+     * @param {HTMLElement} elem
+     */
+    async initOnElem(elem) {
+        const config = this.getPerInstanceConfig(elem);
+
+        // Now, in this context, elem is the code element (pre usually)
+        const toolbarElem = document.createElement('div');
+        toolbarElem.className = 'jToolbarWrapper jPTbStyl';
+        toolbarElem.innerHTML = this.uiController.getToolbarHtml(this.settings);
+
+        // Check to see if <pre></pre> is already wrapped with toolbar wrapper - if not, wrap it
+        if (elem.parentElement && !elem.parentElement.classList.contains('jPtbWrapCombo') && config.wrapCombo) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'jPtbWrapCombo';
+            // Add the wrapper as a sibling, before, of the code container
+            elem.parentElement.insertBefore(wrapper, elem);
+            // move into wrapper
+            wrapper.appendChild(elem);
+        }
+
+        // No matter what, toolbar wrapper is now in place, and elem definitely has parent element
+        const parentElem = /** @type {HTMLElement} */ (elem.parentElement);
+
+        // Toolbar should be added BEFORE <pre></pre>, not inside it
+        parentElem.insertBefore(toolbarElem, elem);
+
+        // Directly add transition CSS to elements
+        if (config.animate) {
+            elem.style.transition = 'all 1s';
+        }
+
+        // Generate ID for code element and set as target of copy button
+        let codeElemId = elem.getAttribute('id');
+        const copyButton = /** @type {HTMLElement} */ (toolbarElem.querySelector('.jCopyButton'));
+        if (!codeElemId || codeElemId === '') {
+            codeElemId = this.getNewInstanceId();
+            elem.setAttribute('id', codeElemId);
+        }
+        copyButton.setAttribute('data-clipboard-target', '#' + codeElemId);
+
+        // See if line-wrap should be turned on to start with
+        if (config.lineWrap) {
+            elem.classList.add('jCodeForceLineWrap');
+            // @ts-ignore
+            toolbarElem.querySelector('.jPTbrTogLWrap').setAttribute('data-linewrapon', 'true');
+        }
+
+        // Wrap up all properties into a nice "instance" object
+        /** @type {ToolbarInstance} */
+        const createdInstance = {
+            container: parentElem,
+            codeElem: elem,
+            toolbarElem: toolbarElem,
+            collapsed: false,
+            copyButton: copyButton,
+            clipboardInitialized: false,
+            eventsAttached: false,
+            config: config,
+            isMaximized: false,
+            fullscreenWrapper: undefined,
+        };
+
+        // Save
+        this.domInstances.push(createdInstance);
+
+        // Check if instance is supposed to pull content from remote URL
+        if (typeof config.remoteSrc === 'string' && !!config.remoteSrc) {
+            const innerText = elem.innerText || elem.textContent;
+            if (!!innerText && this.debug) {
+                console.warn('Overwriting code content with AJAX content');
+            }
+            await this.loadRemoteCode(createdInstance, config.remoteSrc);
+        }
+
+        // Check if we should apply auto-fix
+        if (config.autoFix) {
+            this.autoFix(elem);
+        }
+
+        // Attach listeners
+        this.attachEventListeners();
+
+        return createdInstance;
     }
 
     initClipboardJS() {
@@ -208,7 +238,7 @@ export class PrismToolbar {
     }
 
     /**
-     * Force jPrimsToolbar to evaluate inputs to determine which elements to target for adding the toolbar to
+     * Force jPrismToolbar to evaluate inputs to determine which elements to target for adding the toolbar to
      */
     populateListOfTargets() {
         const inputSettings = this.#_inputSettings;
@@ -351,7 +381,7 @@ export class PrismToolbar {
 
             // Copy language class to `<code>` elem and re-init
             codeElem.classList.add(`language-${langAbbrev}`);
-            window.Prism.highlightElement(codeElem);
+            this.highlight(codeElem);
             return true;
         }
 
@@ -436,7 +466,6 @@ export class PrismToolbar {
      * @param {ToolbarInstance} instance
      */
     toggleMaximize(instance) {
-        var _this = this;
         if (instance.isMaximized !== true) {
             // Construct a fullscreen wrapper
             const fullscreenWrapper = document.createElement('div');
@@ -459,14 +488,14 @@ export class PrismToolbar {
             document.getElementsByTagName('body')[0].appendChild(fullscreenWrapper);
             // Attach event listeners for closing out of fullscreen
             // @ts-ignore
-            fullscreenWrapper.querySelector('.jFullscreenCloseBtn').addEventListener('click', function (evt) {
-                _this.toggleMaximize(instance);
+            fullscreenWrapper.querySelector('.jFullscreenCloseBtn').addEventListener('click', () => {
+                this.toggleMaximize(instance);
             });
-            codeWrapper.addEventListener('click', function (evt) {
+            codeWrapper.addEventListener('click', (evt) => {
                 // Make sure click was NOT on code block, and was on the backdrop itself
                 const target = /** @type {typeof codeWrapper} */ (evt.target);
                 if (target.classList.contains('jCodeWrapper')) {
-                    _this.toggleMaximize(instance);
+                    this.toggleMaximize(instance);
                 }
             });
             // Update state
@@ -571,84 +600,171 @@ export class PrismToolbar {
     }
 
     /**
-     *
+     * Parse a remote code URL and load, if possible
      * @param {ToolbarInstance} instance
      * @param {string} src
-     * @param {function} [callback]
      */
-    loadRemoteCode(instance, src, callback) {
-        let srcLink = src;
+    async loadRemoteCode(instance, src) {
+        /** @type {Promise<any>[]} */
+        const promiseArr = [];
+        let rawCodeLink = src;
+        let userLink = src;
+        let matched = false;
+        let done = false;
+
+        this.setRemoteSrcDisplay(instance, src);
+
         // Test for raw reversable Github link
         const rawGhPatt = /(https{0,1}:\/\/)raw\.githubusercontent\.com(\/[^\/]+\/[^\/]+)(\/.*)/i;
-        if (rawGhPatt.test(src)) {
+        if (!matched && rawGhPatt.test(src)) {
+            matched = true;
             const parts = [...(src.match(rawGhPatt) || [])];
-            srcLink = `${parts[1]}github.com${parts[2]}/blob${parts[3]}`;
-        }
-        // Test for blob Github link
-        const blobGhPatt = /(https{0,1}:\/\/)github\.com(\/[^\/]+\/[^\/]+)\/blob(\/.*)/i;
-        if (blobGhPatt.test(src)) {
-            const parts = [...(src.match(blobGhPatt) || [])];
-            src = `${parts[1]}raw.githubusercontent.com${parts[2]}${parts[3]}`;
+            userLink = `${parts[1]}github.com${parts[2]}/blob${parts[3]}`;
         }
 
+        // Test for blob Github link
+        const blobGhPatt = /(https{0,1}:\/\/)github\.com(\/[^\/]+\/[^\/]+)\/blob(\/.*)/i;
+        if (!matched && blobGhPatt.test(src)) {
+            matched = true;
+            const parts = [...(src.match(blobGhPatt) || [])];
+            rawCodeLink = `${parts[1]}raw.githubusercontent.com${parts[2]}${parts[3]}`;
+            userLink = src;
+        }
+
+        // Test for generic Gist link - these can contain nested files
+        const rawGistPatt = /(https{0,1}:\/\/)gist\.github\.com\/([^\/]+)\/([^\/]+)$/i;
+        if (!matched && rawGistPatt.test(src)) {
+            matched = true;
+            done = true;
+            const gistId = (src.match(rawGistPatt) || [])[3];
+            try {
+                const ghRes = await fetch(`https://api.github.com/gists/${gistId}`);
+                const data = await ghRes.json();
+                /** @type {Array<import('./types').GhGistFile>} */
+                const files = Object.values(data.files);
+
+                // We need to:
+                // - destroy instance, and replace with multiple elements, one
+                // per gist sub-file
+                // - wrap those elements in a container
+                // - Initialize those elements, as instances, with toolbar
+                // and highlighting
+                // - Mark those elemnts / instances as remote code, with URLs
+
+                // Remove instance that is going to be replaced by multiple
+                this.domInstances = this.domInstances.filter((i) => i.codeElem !== instance.codeElem);
+                instance.toolbarElem.remove();
+
+                // Create container to hold all files
+                const container = document.createElement('div');
+                container.classList.add(`${PkgPrefix}MultiContainer`);
+                instance.codeElem.replaceWith(container);
+
+                // Create banner / header that tells user all below belong to
+                // same gist
+                if (files.length > 1) {
+                    const banner = document.createElement('p');
+                    banner.classList.add(`${PkgPrefix}Banner`);
+                    banner.innerHTML = `Files in Github Gist (${getNewTabLink(src, gistId)}):`;
+                    container.appendChild(banner);
+                }
+
+                // Inject each file into container, with highlighting
+                files.forEach((f) => {
+                    const languageStr = `language-${f.language.toLocaleLowerCase()}`;
+                    const pre = document.createElement('pre');
+                    pre.classList.add(languageStr);
+                    pre.innerHTML = `<code class="${languageStr}">${basicHtmlEscape(f.content)}</code>`;
+                    container.append(pre);
+                    promiseArr.push(
+                        (async () => {
+                            const subInstance = await this.initOnElem(pre);
+                            this.highlight(subInstance);
+                            this.setRemoteSrcDisplay(subInstance, f.raw_url, f.filename);
+                        })()
+                    );
+                });
+            } catch (e) {
+                console.error('Failed to load GH Gist', e);
+            }
+        }
+
+        if (!done) {
+            await this.fetchAndLoadIntoInstance(instance, rawCodeLink, userLink);
+        }
+
+        await Promise.all(promiseArr);
+    }
+
+    /**
+     * Fetch a URL that returns raw code, and display the code in an instance
+     * @param {ToolbarInstance} instance
+     * @param {string} codeSrc Where the raw code text can be fetched from
+     * @param {string} [userLink] Where the user should be taken to if they want to view the original source code in Github / VC
+     */
+    async fetchAndLoadIntoInstance(instance, codeSrc, userLink) {
+        this.showMessage(instance, 'Loading remote code...', 2000);
+        this.setInnerContent(instance, `loading ${codeSrc} ...`, false);
+        this.setRemoteSrcDisplay(instance, userLink || codeSrc);
+
+        const fail = () => {
+            this.showMessage(instance, 'Remote URL could not be reached :(', 5000);
+            this.setInnerContent(
+                instance,
+                `<span style="background-color:red;">Remote load failed. Remote link: ${getNewTabLink(
+                    codeSrc,
+                    codeSrc,
+                    'color:white !important;'
+                )}</span>`,
+                false
+            );
+        };
+
+        /** @type {Response | null} */
+        let response = null;
+        let rawRemoteCode = '';
+        let success = false;
+
+        try {
+            response = await fetch(codeSrc);
+            if (response.status === 200) {
+                rawRemoteCode = await response.text();
+                this.setInnerContent(instance, basicHtmlEscape(rawRemoteCode), true, true);
+                this.showMessage(instance, 'Remote URL loaded!');
+                success = true;
+            }
+        } catch (e) {
+            success = false;
+        }
+
+        if (!success) {
+            fail();
+        }
+
+        return {
+            success,
+            response,
+            rawRemoteCode,
+        };
+    }
+
+    /**
+     * Display a remote code URL notice in the toolbar
+     *  - Set url to null to hide
+     * @param {ToolbarInstance} instance
+     * @param {string | null} url
+     * @param {string} [linkText]
+     */
+    setRemoteSrcDisplay(instance, url, linkText) {
         // Display link to remote
         const remoteSrcDisplayElem = /** @type {HTMLElement} */ (
             instance.toolbarElem.querySelector('.jRemoteSrcDisplay')
         );
-        remoteSrcDisplayElem.classList.remove('jHidden');
-        remoteSrcDisplayElem.innerHTML = `Remote Source: <a href="${srcLink}" target="_blank" rel="noopener">${srcLink}</a>`;
-        // @TODO - add JSONP option?
-        const _callback = typeof callback === 'function' ? callback : () => {};
-        const _this = this;
-        const TIMEOUT_MS = 1000 * 10;
-        let done = false;
-        this.setRemoteLoadingMode(instance, src, true, false);
-        const request = new XMLHttpRequest();
-        request.addEventListener('load', function (res) {
-            done = true;
-            const rawRemoteCode = request.responseText;
-            if (request.status === 200) {
-                _this.setInnerContent(instance, basicHtmlEscape(rawRemoteCode), true, true);
-                _this.setRemoteLoadingMode(instance, src, false, false);
-            } else {
-                _this.setRemoteLoadingMode(instance, src, false, true);
-            }
-            _callback({
-                request,
-                code: rawRemoteCode,
-                instance,
-            });
-        });
-        request.open('GET', src);
-        request.send(null);
-        setTimeout(function () {
-            if (!done) {
-                _this.setRemoteLoadingMode(instance, src, false, true);
-            }
-        }, TIMEOUT_MS);
-    }
-
-    /**
-     * @param {ToolbarInstance} instance
-     * @param {string} src
-     * @param {boolean} isLoading
-     * @param {boolean} failed
-     */
-    setRemoteLoadingMode(instance, src, isLoading, failed) {
-        if (isLoading) {
-            this.showMessage(instance, 'Loading remote code...', 2000);
-            this.setInnerContent(instance, `loading ${src} ...`, false);
+        if (!!url) {
+            remoteSrcDisplayElem.classList.remove('jHidden');
+            remoteSrcDisplayElem.innerHTML = `Remote Source: ${getNewTabLink(url, linkText)}`;
         } else {
-            if (failed) {
-                this.showMessage(instance, 'Remote URL could not be reached :(', 5000);
-                this.setInnerContent(
-                    instance,
-                    `<span style="background-color:red;">Remote load failed. Remote link: <a target="_blank" href="${src}" style="color:white !important;">${src}</a></span>`,
-                    false
-                );
-            } else {
-                this.showMessage(instance, 'Remote URL loaded!');
-            }
+            remoteSrcDisplayElem.classList.add('jHidden');
         }
     }
 
@@ -660,21 +776,39 @@ export class PrismToolbar {
      * @param {boolean} [OPT_forceIntoCodeEleme]
      */
     setInnerContent(instance, content, OPT_reHighlight, OPT_forceIntoCodeEleme) {
-        var forceCodeElem = typeof OPT_forceIntoCodeEleme === 'boolean' ? OPT_forceIntoCodeEleme : false;
-        var reHighlight = typeof OPT_reHighlight === 'boolean' ? OPT_reHighlight : true;
+        const forceCodeElem = typeof OPT_forceIntoCodeEleme === 'boolean' ? OPT_forceIntoCodeEleme : false;
+        const reHighlight = typeof OPT_reHighlight === 'boolean' ? OPT_reHighlight : true;
+
         let contentTarget = instance.codeElem;
+
         // See if <code></code> is contained
         const innerCodeElem = instance.codeElem.querySelector('code');
         if (innerCodeElem) {
             contentTarget = innerCodeElem;
         } else if (instance.codeElem.nodeName === 'PRE' && forceCodeElem) {
             instance.codeElem.innerHTML = '';
-            var codeElem = document.createElement('code');
-            instance.codeElem.appendChild(codeElem);
+            contentTarget = document.createElement('code');
+            instance.codeElem.appendChild(contentTarget);
         }
+
         contentTarget.innerHTML = content;
-        if (reHighlight && typeof window.Prism === 'object') {
-            window.Prism.highlightElement(instance.codeElem);
+
+        if (reHighlight) {
+            this.highlight(instance);
+
+            // Special: Remove spurious first line indent caused by HTML pre src
+            instance.codeElem.innerHTML = instance.codeElem.innerHTML.replace(/^\s+/g, '');
+        }
+    }
+
+    /**
+     * Attempt to highlight (or re-highlight) code syntax with Prism
+     * @param {ToolbarInstance | HTMLElement | Element} instanceOrElem
+     */
+    highlight(instanceOrElem) {
+        const elem = 'codeElem' in instanceOrElem ? instanceOrElem.codeElem : instanceOrElem;
+        if (typeof window.Prism === 'object') {
+            window.Prism.highlightElement(elem);
         }
     }
 }

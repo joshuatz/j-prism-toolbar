@@ -143,7 +143,7 @@ Settings key | HTML attribute key | default | description
 --- | --- | --- | ----
 `animate` | `data-animate` | `true` | boolean, whether CSS animations should be used (for example, when collapsing or opening an embed)
 `lineWrap` | `data-linewrap` | `false` | boolean, whether or not the preview should use linewrap
-`remoteSrc` | `data-jptremote` | `false` | Set to a URL string that returns code as text (such as what you get when you click "view raw" on Github) and it will get pulled into the code preview box via AJAX and my tool will trigger Prism to re-highlight it
+`remoteSrc` | `data-jptremote` | `false` | Set to a URL string that returns code as text (such as what you get when you click "view raw" on Github) and it will get pulled into the code preview box via AJAX and my tool will trigger Prism to re-highlight it.<br/><br/><strong>Experimental:</strong> Can also support multi-file raw GitHub Gist URLs.
 
 ## Notes:
 
@@ -156,5 +156,5 @@ Settings key | HTML attribute key | default | description
 ## Changelog
 Version | Date | Notes
 --- | --- | ---
-`v1.3.0` | @TODO| Major refactor, started exporting types, support ESM and CJS imports
+`v1.3.0` | @TODO| Major refactor, started exporting types, support ESM and CJS imports, support multi-file GitHub Gist URLs
 `v1.2.3` | 1/10/21 | Upgraded "copy-to-clipboard" feature

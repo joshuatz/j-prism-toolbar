@@ -1,16 +1,26 @@
 // @ts-check
 /// <reference types="jest" />
-import fs from 'fs';
+/// <reference path="test-globals.d.ts" />
+import fse from 'fs-extra';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import * as testHelpers from './helpers';
+import fetchMock from 'jest-fetch-mock';
 
 import '../src/jPrismToolbar.web';
+
+/**
+ * @typedef {import('../src').PrismToolbar} PrismToolbar
+ * @typedef {import('../src').ToolbarInstance} Instance
+ */
 
 // Shim prism
 window['Prism'] = {
     highlightElement: () => {},
 };
+
+// Mock fetch
+fetchMock.enableMocks();
 
 // @ts-ignore
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -24,8 +34,17 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
  * @property {HTMLElement} echo
  */
 
+/**
+ * @typedef {object} TestInsts
+ * @property {Instance} alpha
+ * @property {Instance} bravo
+ * @property {Instance} charlie
+ * @property {Instance} delta
+ * @property {Instance} echo
+ */
+
 describe('Tests jPrismToolbar', () => {
-    let testHtml = fs.readFileSync(__dirname + '/fixtures/test-fixture.html').toString();
+    let testHtml = fse.readFileSync(__dirname + '/fixtures/test-fixture.html').toString();
     const PrismConstructor = window['PrismToolbar'];
     /** @type {TestElements} */
     let testElements = {
@@ -35,13 +54,8 @@ describe('Tests jPrismToolbar', () => {
         delta: null,
         echo: null,
     };
-    let testInsts = {
-        alpha: {},
-        bravo: {},
-        charlie: {},
-        delta: {},
-        echo: {},
-    };
+    /** @type {TestInsts} */
+    let testInsts;
 
     const grabTestElements = () => {
         testElements = {
@@ -94,8 +108,8 @@ describe('Tests jPrismToolbar', () => {
             expect(totalInitCount).toEqual(2);
         });
 
-        test('Respects settings through HTML attributes', () => {
-            const initRes = new PrismConstructor().autoInit();
+        test('Respects settings through HTML attributes', async () => {
+            const initRes = await new PrismConstructor().autoInit();
             grabTestElements();
             grabTestInstances(initRes);
             // lineWrap is off by default
@@ -105,8 +119,8 @@ describe('Tests jPrismToolbar', () => {
             expect(testInsts.bravo.config.lineWrap).toEqual(true);
         });
 
-        test('It auto-fixes bad setups', () => {
-            const initRes = new PrismConstructor({
+        test('It auto-fixes bad setups', async () => {
+            const initRes = await new PrismConstructor({
                 autoFix: true,
             }).autoInitAll();
             grabTestElements();
@@ -117,9 +131,10 @@ describe('Tests jPrismToolbar', () => {
     });
 
     describe('Tests interactivity', () => {
+        /** @type {PrismToolbar} */
         let initRes;
-        beforeEach(() => {
-            initRes = new PrismConstructor().autoInit();
+        beforeEach(async () => {
+            initRes = await new PrismConstructor().autoInit();
             grabTestElements();
             grabTestInstances(initRes);
         });
@@ -127,11 +142,13 @@ describe('Tests jPrismToolbar', () => {
         test('Lets users collapse via button', () => {
             return new Promise((resolver) => {
                 expect(testInsts.alpha.collapsed).toEqual(false);
+                // @ts-ignore
                 testInsts.alpha.toolbarElem.querySelector('.prismTbTgCollap').click();
                 expect(testInsts.alpha.collapsed).toEqual(true);
                 setTimeout(resolver, 200);
             }).then(() => {
                 expect(testInsts.alpha.collapsed).toEqual(true);
+                // @ts-ignore
                 testInsts.alpha.toolbarElem.querySelector('.prismTbTgCollap').click();
                 expect(testInsts.alpha.collapsed).toEqual(false);
             });
@@ -139,6 +156,7 @@ describe('Tests jPrismToolbar', () => {
 
         test('Lets users maximize code viewer', () => {
             expect(testInsts.alpha.isMaximized).toEqual(false);
+            // @ts-ignore
             testInsts.alpha.toolbarElem.querySelector('.jMaximizeButton').click();
             expect(testInsts.alpha.isMaximized).toEqual(true);
             // Make sure clicking outside maximize area closes
@@ -151,6 +169,7 @@ describe('Tests jPrismToolbar', () => {
         // SKIP: Can't use getSelection() in JSDOM
         test.skip('Preps text for copying to clipboard', () => {
             expect(window.getSelection().toString()).toEqual('');
+            // @ts-ignore
             testInsts.alpha.toolbarElem.querySelector('.jCopyButton').click();
             const selectedText = window.getSelection().toString().trim();
             expect(selectedText).toEqual(`console.log('Test');`);
@@ -158,9 +177,10 @@ describe('Tests jPrismToolbar', () => {
     });
 
     describe('Tests API', () => {
+        /** @type {PrismToolbar} */
         let initRes;
-        beforeEach(() => {
-            initRes = new PrismConstructor().autoInit();
+        beforeEach(async () => {
+            initRes = await new PrismConstructor().autoInit();
             grabTestElements();
             grabTestInstances(initRes);
         });
@@ -190,21 +210,45 @@ describe('Tests jPrismToolbar', () => {
             });
         });
 
-        // @TODO - this works, but really should be either mocked or replayed
-        test('Can load remote content', () => {
+        test('Can load remote content - raw code', async () => {
+            const remoteSrc = 'https://raw.githubusercontent.com/joshuatz/j-prism-toolbar/main/LICENSE';
+            const remoteStr = 'Permission is hereby';
             expect.assertions(1);
-            const loaderPromise = new Promise((resolve) => {
-                initRes.loadRemoteCode(
-                    testInsts.alpha,
-                    'https://raw.githubusercontent.com/joshuatz/j-prism-toolbar/main/LICENSE',
-                    (loadResult) => {
-                        resolve(loadResult);
-                    }
-                );
+
+            // Mocked payload
+            fetchMock.mockResponseOnce(
+                `MIT License\n\nCopyright (c) 2021 Joshua Tzucker\n\nPermission is hereby granted, `
+            );
+
+            await initRes.loadRemoteCode(testInsts.alpha, remoteSrc);
+            // Check actual loaded content
+            expect(testInsts.alpha.codeElem.textContent.includes(remoteStr)).toBe(true);
+        });
+
+        test('Can load remote content - Github Gist', async () => {
+            const gistLink = 'https://gist.github.com/joshuatz/9e951b0e2856273c7a912bb21a21d70a';
+            expect.assertions(3);
+
+            // Mocked payload
+            const gistMockPayload = (await fse.readFile(__dirname + '/fixtures/gist-response.json')).toString();
+            const gistMockObj = JSON.parse(gistMockPayload);
+            fetchMock.mockResponseOnce(gistMockPayload);
+            /** @type {import('../src/types').GhGistFile[]} */
+            const files = Object.values(gistMockObj.files);
+
+            // Create a test container
+            const testBed = document.createElement('div');
+            testBed.insertAdjacentHTML('afterbegin', `<pre><code data-jptremote="${gistLink}"></code></pre>`);
+            document.body.appendChild(testBed);
+
+            // Init injected test bed
+            const isolatedController = new window.PrismToolbar({
+                targetElements: testBed.querySelector('pre'),
             });
-            return loaderPromise.then((loadResult) => {
-                expect(loadResult.request.status).toEqual(200);
-            });
+            await isolatedController.init();
+            expect(isolatedController.domInstances.length).toBe(2);
+            expect(isolatedController.domInstances[0].codeElem.textContent.trim()).toBe(files[0].content.trim());
+            expect(isolatedController.domInstances[1].codeElem.textContent.trim()).toBe(files[1].content.trim());
         });
     });
 });

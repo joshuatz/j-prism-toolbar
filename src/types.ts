@@ -85,6 +85,14 @@ export interface OverrideMap {
     setting: keyof InstanceConfig;
 }
 
+export interface GhGistFile {
+    content: string;
+    filename: string;
+    language: string;
+    raw_url: string;
+    trunctated: boolean;
+}
+
 export declare class ClipboardJS {
     constructor(input: string | HTMLElement | NodeListOf<HTMLElement>, config?: {
         container?: HTMLElement;

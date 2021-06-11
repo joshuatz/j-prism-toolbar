@@ -1,3 +1,8 @@
+/**
+ * Short identifier / prefix to avoid clashes
+ */
+export const PkgPrefix = 'jPTb';
+
 // prettier-ignore
 export const ToolbarCSS = /** @type {string} */ (
 `
@@ -7,6 +12,7 @@ export const ToolbarCSS = /** @type {string} */ (
 }
 .jToolbar {
     display: flex;
+    flex-wrap: wrap;
     box-sizing: border-box;
     background-color: white;
     border-left: 1px solid black;
@@ -173,12 +179,23 @@ export const ToolbarCSS = /** @type {string} */ (
 .jFscrnWrp .jHidden, .jToolbarWrapper .jHidden {
     display: none !important;
 }
-.jCodeForceLineWrap, .jCodeForceLineWrap code {
-    white-space: pre-wrap;
-} 
+.jCodeForceLineWrap, .jCodeForceLineWrap code, .jCodeForceLineWrap pre {
+    white-space: pre-wrap !important;
+}
+.${PkgPrefix}MultiContainer {
+    border: 1px dashed black;
+	padding: 0px 4px;
+}
+.${PkgPrefix}MultiContainer .${PkgPrefix}Banner {
+    text-align: center;
+    font-size: 1.2rem;
+}
+.${PkgPrefix}MultiContainer > div:nth-child(1n+2) {
+    margin-top: 8px;
+}
 .jRemoteSrcDisplay {
     text-align: center;
-    width: 100%;
+    overflow-wrap: anywhere;
 }
 @media only screen and (max-width: 360px){
     .jToolbarWrapper .jLeftSide {
