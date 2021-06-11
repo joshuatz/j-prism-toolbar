@@ -444,7 +444,7 @@ export class PrismToolbar {
             // Create toolbar
             fullscreenWrapper.innerHTML = `<div class="jFullscreenToolbar">
                   <div class="jFscreenTBtnWrp">
-                      <div class="jFullscreenToolbarButton jCloseButton">X</div>
+                      <button class="jFullscreenCloseBtn">X</button>
                   </div>
               </div>`;
             // Create code wrapper
@@ -459,7 +459,7 @@ export class PrismToolbar {
             document.getElementsByTagName('body')[0].appendChild(fullscreenWrapper);
             // Attach event listeners for closing out of fullscreen
             // @ts-ignore
-            fullscreenWrapper.querySelector('.jCloseButton').addEventListener('click', function (evt) {
+            fullscreenWrapper.querySelector('.jFullscreenCloseBtn').addEventListener('click', function (evt) {
                 _this.toggleMaximize(instance);
             });
             codeWrapper.addEventListener('click', function (evt) {

@@ -22,7 +22,8 @@ export class JPrismToolbarUI {
     getFallbackButtonCode(buttonType, config) {
         config = config || this.config;
         const emoji = IconMap[buttonType].emoji;
-        const str = emoji && config.iconStyle === 'emoji' ? emoji : buttonType;
+        const isEmoji = emoji && config.iconStyle === 'emoji';
+        const str = isEmoji ? `<span aria-hidden="true">${emoji}</span>` : buttonType;
         return `<div class="jAutCtPrnt jIconWrapper jIconSldBg">
                 <div class="jFallback">${str}</div>
             </div>`;
@@ -62,37 +63,35 @@ export class JPrismToolbarUI {
      * @param {Config} [config]
      */
     getToolbarHtml(config) {
-        const lineWrapButtonCode = `<div class="jPTbrTogLWrap JtbBtn JtbBtnShowPointer jLineWrapButton jHsFlbkIcons jShadowLight" title="Toggle Line Wrap" data-linewrapon="false">${this.getButtonCode(
+        const lineWrapButtonCode = `<button class="jPTbrTogLWrap JtbBtn jLineWrapButton jHsFlbkIcons jShadowLight" title="Toggle Line Wrap" data-linewrapon="false">${this.getButtonCode(
             'break',
             config
-        )}</div>`;
-        const copyButtonCode = `<div class="JtbBtn jCopyButton jHsFlbkIcons jShadowLight" title="Copy code to clipboard">${this.getButtonCode(
+        )}</button>`;
+        const copyButtonCode = `<button class="JtbBtn jCopyButton jHsFlbkIcons jShadowLight" title="Copy code to clipboard">${this.getButtonCode(
             'copy',
             config
-        )}</div>`;
-        const maximizeButtonCode = `<div class="JtbBtn JtbBtnShowPointer jMaximizeButton jHsFlbkIcons jShadowLight" title="Fullscreen code view">${this.getButtonCode(
+        )}</button>`;
+        const maximizeButtonCode = `<button class="JtbBtn jMaximizeButton jHsFlbkIcons jShadowLight" title="Fullscreen code view">${this.getButtonCode(
             'max',
             config
-        )}</div>`;
+        )}</button>`;
 
         return `
         <div class="jToolbar jShadow">
-            <div class="jContent">
-                <div class="jLeftSide">
-                    <div class="jMessageWrapper">
-                        <div class="jMessage jHidden"></div>
-                        <div class="jRemoteSrcDisplay jHidden"></div>
-                    </div>
+            <div class="jLeftSide">
+                <div>
+                    <div class="jMessage jHidden"></div>
+                    <div class="jRemoteSrcDisplay jHidden"></div>
                 </div>
-                <div class="jRightSide">
-                    ${lineWrapButtonCode}
-                    ${copyButtonCode}
-                    <div class="prismTbTgCollap JtbBtn JtbBtnShowPointer jShadowLight" data-collapsed="false" title="Toggle collapse of code embed">
-                        <div class="isNotCollapsed jAutCtPrnt jIconWrapper"><div style="margin-top:-4px">-</div></div>
-                        <div class="isCollapsed jAutCtPrnt jIconWrapper"><div>+</div></div>
-                    </div>
-                    ${maximizeButtonCode}
-                </div>
+            </div>
+            <div class="jRightSide">
+                ${lineWrapButtonCode}
+                ${copyButtonCode}
+                <button class="prismTbTgCollap JtbBtn jShadowLight" data-collapsed="false" title="Toggle collapse of code embed">
+                    <div class="isNotCollapsed jAutCtPrnt jIconWrapper"><div style="margin-top:-4px">-</div></div>
+                    <div class="isCollapsed jAutCtPrnt jIconWrapper"><div>+</div></div>
+                </button>
+                ${maximizeButtonCode}
             </div>
         </div>`;
     }

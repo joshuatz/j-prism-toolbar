@@ -1,46 +1,52 @@
 // prettier-ignore
 export const ToolbarCSS = /** @type {string} */ (
 `
-.JtbBtn {
-    border: 1px solid black;
-    width: 36px;
-    height: 36px;
-    text-align: center;
-    font-size: 3rem;
-    display: inline-block;
-    float: left;
-    position: relative;
-    margin-left: 4px;
-    overflow: hidden;
-    margin-bottom: 6px;
-}
 .jToolbarWrapper {
     width: 100%;
     color: black;
 }
 .jToolbar {
+    display: flex;
+    box-sizing: border-box;
     background-color: white;
     border-left: 1px solid black;
     border-top: 1px solid black;
     border-right: 1px solid black;
-    padding: 10px 0px;
+    padding: 10px 6px;
     min-height: 55px;
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
     margin-bottom: -16px !important;
     height: auto;
-    display: inline-block;
     width: 100%;
 }
-.jToolbarWrapper .jRightSide {
-    position: absolute;
-    right: 10px;
-    min-width: 120px;
-    max-width: 80%;
+.jToolbar > * {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-.jToolbarWrapper .jLeftSide {
-    max-width: calc(100% - 180px);
+.jToolbar .jLeftSide {
+    flex: 1;
+}
+.jToolbar .jRightSide {
+    margin-left: auto;
+}
+.JtbBtn {
+    display: inline-block;
+    box-sizing: content-box;
     float: left;
+    position: relative;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border: 1px solid black;
+    background-color: white;
+    text-align: center;
+    font-size: 3rem;
+    overflow: hidden;
+    padding: 0px;
+    margin-left: 4px;
+    margin-bottom: 6px;
 }
 .prismTbTgCollap[data-collapsed="false"] .isCollapsed {
     display:none;
@@ -74,17 +80,10 @@ export const ToolbarCSS = /** @type {string} */ (
     left: 50%;
     transform: translate(-50%, -50%);
 }
-.jToolbarWrapper .jContent {
-    position: relative;
-}
-.jToolbarWrapper .jContent, JtbBtn > img, .prismTbTgCollap > .jAutCtPrnt {
-    width: 100%;
-}
 .jPTbStyl .jCopyButton .jFallback {
     font-size: 1rem;
 }
 .JtbBtn, .jPTbStyl .jIconSldBg {
-    webkitTransition: all 300ms;
     transition: all 300ms;
 }
 .jPTbStyl .jIconSldBg {
@@ -107,9 +106,6 @@ export const ToolbarCSS = /** @type {string} */ (
 }
 .prismTbTgCollap div {
     font-size: 40px;
-}
-.JtbBtnShowPointer {
-    cursor: pointer;
 }
 .jPTbStyl .jCopyButton {
     cursor: copy;
@@ -144,10 +140,12 @@ export const ToolbarCSS = /** @type {string} */ (
     position: absolute;
     background-color: black;
 }
-.jFullscreenToolbarButton {
+.jFullscreenCloseBtn {
     color: white;
-    font-size: 3rem;
+    background-color: black;
+    border: none;
     cursor: pointer;
+    font-size: 3rem;
 }
 .jFscrnWrp .jCodeWrapper > * {
     border: 2px solid white;
@@ -156,9 +154,6 @@ export const ToolbarCSS = /** @type {string} */ (
     max-height: 93% !important;
     overflow-y: scroll;
     margin: 0px;
-}
-.jMessageWrapper {
-    width: auto;
 }
 .jPTbStyl .jMessage {
     margin-left: 10px;
@@ -186,9 +181,6 @@ export const ToolbarCSS = /** @type {string} */ (
     width: 100%;
 }
 @media only screen and (max-width: 360px){
-    .jToolbar {
-        min-height: 95px;
-    }
     .jToolbarWrapper .jLeftSide {
         display: none;
     }

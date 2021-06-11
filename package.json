@@ -11,8 +11,10 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --collectCoverage",
-    "build:web": "tsup src/jPrismToolbar.web.js --minify --format iife && mv dist/jPrismToolbar.web.global.js dist/jPrismToolbar.min.js",
+    "rename:dist": "mv dist/jPrismToolbar.web.global.js dist/jPrismToolbar.min.js",
+    "build:web": "tsup src/jPrismToolbar.web.js --minify --format iife && npm run rename:dist",
     "build:node": "tsup src/index.js --dts src/index.js --format cjs,esm",
+    "watch:web": "tsup src/jPrismToolbar.web.js --watch --format iife --onSuccess \"npm run rename:dist\"",
     "build": "npm run build:node && npm run build:web"
   },
   "keywords": [
