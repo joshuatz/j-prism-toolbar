@@ -138,6 +138,18 @@ export class PrismToolbar {
      * @param {HTMLElement} elem
      */
     async initOnElem(elem) {
+        const attributeIdKey = `data-${PkgPrefix}-id`;
+        const existingId = elem.getAttribute(attributeIdKey);
+        const existingInstance = this.domInstances.filter((i) => i.id === existingId)[0];
+        if (existingInstance) {
+            // Already init
+            if (this.debug) {
+                console.warn(`Duplicate initOnElem() detected`, elem, existingInstance);
+            }
+            return existingInstance;
+        }
+
+        const uniqueId = this.getNewInstanceId();
         const config = this.getPerInstanceConfig(elem);
 
         // Now, in this context, elem is the code element (pre usually)
@@ -170,8 +182,7 @@ export class PrismToolbar {
         let codeElemId = elem.getAttribute('id');
         const copyButton = /** @type {HTMLElement} */ (toolbarElem.querySelector('.jCopyButton'));
         if (!codeElemId || codeElemId === '') {
-            codeElemId = this.getNewInstanceId();
-            elem.setAttribute('id', codeElemId);
+            elem.setAttribute('id', uniqueId);
         }
         copyButton.setAttribute('data-clipboard-target', '#' + codeElemId);
 
@@ -195,7 +206,11 @@ export class PrismToolbar {
             config: config,
             isMaximized: false,
             fullscreenWrapper: undefined,
+            id: uniqueId,
         };
+
+        // DOM attribute
+        elem.setAttribute(attributeIdKey, uniqueId);
 
         // Save
         this.domInstances.push(createdInstance);

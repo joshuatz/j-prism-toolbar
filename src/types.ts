@@ -65,6 +65,10 @@ export interface ToolbarInstance {
     config: InstanceConfig;
     isMaximized: boolean;
     fullscreenWrapper?: HTMLDivElement
+    /**
+     * Internal use - unique ID
+     */
+    id: string;
 }
 
 /**
