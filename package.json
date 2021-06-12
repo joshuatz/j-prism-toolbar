@@ -2,11 +2,20 @@
   "name": "j-prism-toolbar",
   "version": "1.2.3",
   "description": "Simple toolbar for PrismJS. Typical 'windows' style toolbar, with minimize/expand, fullscreen, and copy-to-clipboard buttons.",
-  "main": "dist/jPrismToolbar.min.js",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
+  },
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest --collectCoverage",
-    "build": "parcel build jPrismToolbar.js --target browser --no-source-maps --out-file jPrismToolbar.min.js --out-dir ./dist --experimental-scope-hoisting",
-    "minify": "npm run build"
+    "rename:dist": "mv dist/jPrismToolbar.web.global.js dist/jPrismToolbar.min.js",
+    "build:web": "tsup src/jPrismToolbar.web.js --minify --format iife && npm run rename:dist",
+    "build:node": "tsup src/index.js --dts src/index.js --format cjs,esm",
+    "watch:web": "tsup src/jPrismToolbar.web.js --watch --format iife --onSuccess \"npm run rename:dist\"",
+    "build": "npm run build:node && npm run build:web"
   },
   "keywords": [
     "prismjs",
@@ -27,22 +36,25 @@
     "url": "https://github.com/joshuatz/j-prism-toolbar/issues"
   },
   "devDependencies": {
+    "@babel/core": "^7.14.5",
+    "@babel/plugin-transform-modules-commonjs": "^7.14.5",
+    "@types/fs-extra": "^9.0.11",
     "@types/jest": "^26.0.23",
+    "babel-jest": "^27.0.2",
+    "babel-plugin-transform-import-meta": "^2.0.0",
+    "cross-env": "^7.0.3",
+    "fs-extra": "^10.0.0",
     "jest": "^27.0.4",
-    "parcel-bundler": "^1.12.4"
+    "jest-fetch-mock": "^3.0.3",
+    "parcel-bundler": "^1.12.4",
+    "tsup": "^4.11.2",
+    "typescript": "^4.3.2"
   },
   "dependencies": {},
   "resolutions": {
     "node-forge": "0.10.0"
   },
   "files": [
-    "dist/jPrismToolbar.min.js"
-  ],
-  "jest": {
-    "testEnvironment": "jsdom",
-    "testEnvironmentOptions": {
-      "runScripts": "dangerously",
-      "resources": "usable"
-    }
-  }
+    "/dist"
+  ]
 }

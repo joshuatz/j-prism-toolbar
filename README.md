@@ -11,12 +11,29 @@ See it in action all over [joshuatz.com](https://joshuatz.com/) 😄 ([example p
 
 ---
 
-## Instructions
-There is only one file that needs to be added to your webpage (or bundled): `dist/jPrismToolbar.min.js`. You can also fetch it from a CDN, for example:
+
+## Installation
+### Loading via Script Tag
+There is only one file that needs to be added to your webpage (or bundled): `dist/jPrismToolbar.min.js`. As an alternative to adding this as a dependency, you can also fetch it directly from a CDN, for example:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/j-prism-toolbar"></script>
+<script src="https://cdn.jsdelivr.net/npm/j-prism-toolbar@1.3.0/dist/jPrismToolbar.min.js"></script>
 ```
+
+### Loading Via Imports
+If you are using a bundler, you can use the CommonJS or ESM exports provided by this package.
+
+```js
+// ESM
+import {PrismToolbar} from 'j-prism-toolbar'
+
+// CJS
+const {PrismToolbar} = require('j-prism-toolbar');
+```
+
+There are also type definitions included in this package, which both TypeScript and IDEs like VSCode can take advantage of for better type-safety and Intellisense support.
+
+## Usage
 
 To actually instantiate and render all the toolbars, it is usually as easy as creating a new instance and calling autoInit. For example, if you always wrap your code like
 
@@ -36,8 +53,6 @@ Then adding the toolbar is as simple as:
 
 > You can also pass a custom CSS selector to `.autoInit()`
 
----
-
 ### Sample
 Here is a full sample:
 
@@ -56,41 +71,70 @@ Here is a full sample:
 </body>
 ```
 
----
-
 ### Advanced Usage
 Certain settings can be controlled on a 'per instance' basis and can be either passed into the constructor or added as attributes on the code element. Some settings are global.
 
 #### Global Settings
 > Default values are shown. All settings are optional, and you can pass a single CSS selector string to constructor instead of options.selector, if you prefer.
 
-```js
-const instance = new PrismToolbar({
-    // Used for .autoInit()
-    // CSS selector used to find code elements to inject toolbar into.
-    selector: 'pre > code[class*="language-"]',
-    // Alternative to above setting (and overrides it)
-    targetElements: [] // NodeList
-    // boolean, whether or not the toolbar + code embed should be wrapped *together* in wrapper, or just have toolbar and code elem be sibling
-    wrapCombo: true // unless using autoInit(), then false
-    // The style of icon to use for the toolbar. Can pick from `emoji`, `plaintext`,  `material`, or `fontawesome`.
-    // For choices other than `emoji` or `plaintext`, you must have the font pack installed.
-    iconStyle: 'emoji',
-    // Use if you have code blocks that are not getting picked up by the Prism highlighter, because they don't adhere to the standard.
-    // For example, `autoFix` can turn Pandoc output of `<pre class="js"><code></code></pre>` into the correct standard of `<pre><code class="language-js"></code></pre>`, and then re-highlight it with Prism.
-    autoFix: false,
-    /**
-     * The following settings can also be overridden on a per-instance basis, through HTML attributes
-     * See below section for details
+```ts
+interface GlobalConfig {
+     /**
+     * CSS selector used to find code elements to inject toolbar into.
+     *  - Used for .autoInit()
+     * @default 'pre > code[class*="language-"]'
      */
-    // Use CSS animations
-    animate: true,
-    // Use linewrap
-    lineWrap: false,
-    // If set to a URL string that returns text, it will be loaded into the embed
-    remoteSrc: false
-});
+    selector?: string;
+    /**
+     * Alternative to `selector` (and overrides it)
+     */
+    targetElements?: NodeListOf<HTMLElement> | HTMLElement;
+    /**
+     * Extra logging
+     * @default false
+     */
+    debug: boolean;
+    /**
+     * Whether or not the toolbar + code embed should be wrapped *together* in wrapper, or just have toolbar and code elem be sibling
+     * @default true
+     */
+    wrapCombo: boolean;
+    /**
+     * The style of icon to use for the toolbar.
+     * For choices other than `emoji` or `plaintext`, you must have the font pack installed.
+     * @default 'emoji'
+     */
+    iconStyle: 'emoji' | 'plaintext' | 'material' | 'fontawesome';
+    /**
+     * Use if you have code blocks that are not getting picked up by the Prism highlighter, because they don't adhere to the standard.
+     * - For example, `autoFix` can turn Pandoc output of `<pre class="js"><code></code></pre>` into the correct standard of `<pre><code class="language-js"></code></pre>`, and then re-highlight it with Prism.
+     * @default false
+     */
+    autoFix: boolean;
+    // The following settings can also be overridden on a per-instance basis, through HTML attributes
+    /**
+     * Use CSS animations
+     * @default true
+     */
+    animate: boolean;
+    /**
+     * Use linewrap - e.g. white-space: pre-wrap
+     */
+    lineWrap: boolean;
+    /**
+     * If set to a URL string that returns text, it will be loaded into the embed
+     * @default false
+     */
+    remoteSrc: boolean | string;
+}
+
+const myConfig: GlobalConfig = {
+    // ...
+}
+
+const myToolbarManager = new PrismToolbar(myConfig);
 ```
+
 #### Per-Embed Settings
 
 These settings can be changed per-embed (aka *per-instance*), and controlled via HTML attributes. If set, they will override the global settings (see above section).
@@ -99,12 +143,18 @@ Settings key | HTML attribute key | default | description
 --- | --- | --- | ----
 `animate` | `data-animate` | `true` | boolean, whether CSS animations should be used (for example, when collapsing or opening an embed)
 `lineWrap` | `data-linewrap` | `false` | boolean, whether or not the preview should use linewrap
-`remoteSrc` | `data-jptremote` | `false` | Set to a URL string that returns code as text (such as what you get when you click "view raw" on Github) and it will get pulled into the code preview box via AJAX and my tool will trigger Prism to re-highlight it
+`remoteSrc` | `data-jptremote` | `false` | Set to a URL string that returns code as text (such as what you get when you click "view raw" on Github) and it will get pulled into the code preview box via AJAX and my tool will trigger Prism to re-highlight it.<br/><br/><strong>Experimental:</strong> Can also support multi-file raw GitHub Gist URLs.
 
-### Notes:
+## Notes:
 
  -  Almost all classes are prefixed with "j" (just like the repo) to avoid conflicts with other libraries or stylesheets.
  -  Certain buttons try to use icons, but will fallback gracefully depending on what you have installed. It will try font-awesome -> materializecss -> fallback
  -  For the "copy-to-clipboard" feature, it will try to use ClipboardJS, but if it is not available within the global window scope, it will fall back to:
      1. Trying the browser API (`navigator.clipboard`)
      2. Selecting the text and prompting user to copy themselves
+
+## Changelog
+Version | Date | Notes
+--- | --- | ---
+`v1.3.0` | 6/11/21| Major refactor, started exporting types, support ESM and CJS imports, support multi-file GitHub Gist URLs
+`v1.2.3` | 1/10/21 | Upgraded "copy-to-clipboard" feature

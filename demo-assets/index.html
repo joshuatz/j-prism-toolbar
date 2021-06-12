@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <title>j-prism-toolbar: Demo and Test page</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script src="../dist/jPrismToolbar.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism-okaidia.css" integrity="sha256-nwDipdLn93O1CZGoRDor0i4CLmDQb+mdg/yaYMUCuLM=" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.js" integrity="sha256-fZOd7N/oofoKcO92RzxvC0wMm+EvsKyRT4nmcmQbgzU=" crossorigin="anonymous"></script>
+    </head>
+    <body>
+
+        <pre>
+            <code class="language-js">console.log('Hello World!');</code>
+        </pre>
+
+        <script>
+            const jPrismToolbar = new PrismToolbar();
+            jPrismToolbar.autoInit();
+        </script>
+    </body>
+</html>

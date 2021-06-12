@@ -1,0 +1,91 @@
+{
+    "url": "https://api.github.com/gists/hash000abc",
+    "forks_url": "https://api.github.com/gists/hash000abc/forks",
+    "commits_url": "https://api.github.com/gists/hash000abc/commits",
+    "id": "hash000abc",
+    "node_id": "ABC1234567",
+    "git_pull_url": "https://gist.github.com/hash000abc.git",
+    "git_push_url": "https://gist.github.com/hash000abc.git",
+    "html_url": "https://gist.github.com/hash000abc",
+    "files": {
+        "sample.js": {
+            "filename": "sample.js",
+            "type": "application/javascript",
+            "language": "JavaScript",
+            "raw_url": "https://gist.githubusercontent.com/admin/hash000abc/raw/hash000/sample.js",
+            "size": 81,
+            "truncated": false,
+            "content": "const phrase = 'hello world! 🌎';\n\nfunction main() {\n    console.log(phrase);\n}"
+        },
+        "sample.ts": {
+            "filename": "sample.ts",
+            "type": "video/MP2T",
+            "language": "TypeScript",
+            "raw_url": "https://gist.githubusercontent.com/admin/hash000abc/raw/hash000/sample.ts",
+            "size": 208,
+            "truncated": false,
+            "content": "interface DrinkOrder {\n    menuId: number;\n    size: 'small' | 'medium' | 'large';\n    toGo: boolean;\n}\n\nfunction makeDrink(order: DrinkOrder) {\n    console.log(`Making drink, #${order.menuId}`);\n    // ...\n}"
+        }
+    },
+    "public": false,
+    "created_at": "2021-06-11T16:18:13Z",
+    "updated_at": "2021-06-11T16:18:13Z",
+    "description": "Set of Gists to demo with j-prism-toolbar",
+    "comments": 0,
+    "user": null,
+    "comments_url": "https://api.github.com/gists/hash000abc/comments",
+    "owner": {
+        "login": "admin",
+        "id": 123,
+        "node_id": "ABC123",
+        "avatar_url": "https://avatars.githubusercontent.com/u/17817563?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/admin",
+        "html_url": "https://github.com/admin",
+        "followers_url": "https://api.github.com/users/admin/followers",
+        "following_url": "https://api.github.com/users/admin/following{/other_user}",
+        "gists_url": "https://api.github.com/users/admin/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/admin/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/admin/subscriptions",
+        "organizations_url": "https://api.github.com/users/admin/orgs",
+        "repos_url": "https://api.github.com/users/admin/repos",
+        "events_url": "https://api.github.com/users/admin/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/admin/received_events",
+        "type": "User",
+        "site_admin": false
+    },
+    "forks": [],
+    "history": [
+        {
+            "user": {
+                "login": "admin",
+                "id": 123,
+                "node_id": "ABC123",
+                "avatar_url": "https://avatars.githubusercontent.com/u/1234",
+                "gravatar_id": "",
+                "url": "https://api.github.com/users/admin",
+                "html_url": "https://github.com/admin",
+                "followers_url": "https://api.github.com/users/admin/followers",
+                "following_url": "https://api.github.com/users/admin/following{/other_user}",
+                "gists_url": "https://api.github.com/users/admin/gists{/gist_id}",
+                "starred_url": "https://api.github.com/users/admin/starred{/owner}{/repo}",
+                "subscriptions_url": "https://api.github.com/users/admin/subscriptions",
+                "organizations_url": "https://api.github.com/users/admin/orgs",
+                "repos_url": "https://api.github.com/users/admin/repos",
+                "events_url": "https://api.github.com/users/admin/events{/privacy}",
+                "received_events_url": "https://api.github.com/users/admin/received_events",
+                "type": "User",
+                "site_admin": false
+            },
+            "version": "versionhashabc123",
+            "committed_at": "2021-06-11T16:18:13Z",
+            "change_status": {
+                "total": 15,
+                "additions": 15,
+                "deletions": 0
+            },
+            "url": "https://api.github.com/gists/hash000abc/versionhashabc123"
+        }
+    ],
+    "truncated": false
+}
