@@ -156,5 +156,5 @@ Settings key | HTML attribute key | default | description
 ## Changelog
 Version | Date | Notes
 --- | --- | ---
-`v1.3.0` | 6/11/21| Major refactor, started exporting types, support ESM and CJS imports, support multi-file GitHub Gist URLs
+`v1.3.0` | 6/12/21| Major refactor, started exporting types, support ESM and CJS imports, support multi-file GitHub Gist URLs
 `v1.2.3` | 1/10/21 | Upgraded "copy-to-clipboard" feature
