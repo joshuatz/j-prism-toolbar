@@ -44,3 +44,13 @@ export function getNewTabLink(url, linkText, style) {
         linkText || url
     }</a>`;
 }
+
+/**
+ * Utility function since can't use post-fix assert in JSDoc
+ * @template T
+ * @param {T} elem
+ * @returns {Exclude<T, null>}
+ */
+export function assertElem(elem) {
+    return /** @type {Exclude<T, null>} */ (elem);
+}

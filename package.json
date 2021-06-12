@@ -10,7 +10,7 @@
   },
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --collectCoverage",
+    "test": "jest --collectCoverage",
     "rename:dist": "mv dist/jPrismToolbar.web.global.js dist/jPrismToolbar.min.js",
     "build:web": "tsup src/jPrismToolbar.web.js --minify --format iife && npm run rename:dist",
     "build:node": "tsup src/index.js --dts src/index.js --format cjs,esm",
@@ -36,8 +36,12 @@
     "url": "https://github.com/joshuatz/j-prism-toolbar/issues"
   },
   "devDependencies": {
+    "@babel/core": "^7.14.5",
+    "@babel/plugin-transform-modules-commonjs": "^7.14.5",
     "@types/fs-extra": "^9.0.11",
     "@types/jest": "^26.0.23",
+    "babel-jest": "^27.0.2",
+    "babel-plugin-transform-import-meta": "^2.0.0",
     "cross-env": "^7.0.3",
     "fs-extra": "^10.0.0",
     "jest": "^27.0.4",
@@ -52,20 +56,5 @@
   },
   "files": [
     "/dist"
-  ],
-  "jest": {
-    "testEnvironment": "jsdom",
-    "testEnvironmentOptions": {
-      "runScripts": "dangerously",
-      "resources": "usable"
-    },
-    "testMatch": [
-      "<rootDir>/tests/**/*.test.*"
-    ],
-    "moduleFileExtensions": [
-      "js",
-      "ts",
-      "mjs"
-    ]
-  }
+  ]
 }

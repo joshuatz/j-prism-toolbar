@@ -17,7 +17,7 @@ See it in action all over [joshuatz.com](https://joshuatz.com/) 😄 ([example p
 There is only one file that needs to be added to your webpage (or bundled): `dist/jPrismToolbar.min.js`. As an alternative to adding this as a dependency, you can also fetch it directly from a CDN, for example:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/j-prism-toolbar@1.2.3/dist/jPrismToolbar.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/j-prism-toolbar@1.3.0/dist/jPrismToolbar.min.js"></script>
 ```
 
 ### Loading Via Imports
@@ -156,5 +156,5 @@ Settings key | HTML attribute key | default | description
 ## Changelog
 Version | Date | Notes
 --- | --- | ---
-`v1.3.0` | @TODO| Major refactor, started exporting types, support ESM and CJS imports, support multi-file GitHub Gist URLs
+`v1.3.0` | 6/11/21| Major refactor, started exporting types, support ESM and CJS imports, support multi-file GitHub Gist URLs
 `v1.2.3` | 1/10/21 | Upgraded "copy-to-clipboard" feature

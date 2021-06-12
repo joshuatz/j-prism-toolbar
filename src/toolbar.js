@@ -6,7 +6,7 @@
 
 import { LangKeys, PkgPrefix } from './constants';
 import { JPrismToolbarUI } from './ui';
-import { basicHtmlEscape, getNewTabLink, selectElementText } from './utils';
+import { assertElem, basicHtmlEscape, getNewTabLink, selectElementText } from './utils';
 
 export class PrismToolbar {
     /**
@@ -417,9 +417,10 @@ export class PrismToolbar {
             instance.collapsed = false;
         }
         // Update toolbar button
-        instance.toolbarElem
-            .querySelector('.prismTbTgCollap')
-            ?.setAttribute('data-collapsed', instance.collapsed.toString());
+        assertElem(instance.toolbarElem.querySelector('.prismTbTgCollap')).setAttribute(
+            'data-collapsed',
+            instance.collapsed.toString()
+        );
     }
 
     /**
@@ -502,7 +503,9 @@ export class PrismToolbar {
             instance.isMaximized = true;
             instance.fullscreenWrapper = fullscreenWrapper;
         } else {
-            instance.fullscreenWrapper?.remove();
+            if (instance.fullscreenWrapper) {
+                instance.fullscreenWrapper.remove();
+            }
             instance.fullscreenWrapper = undefined;
             instance.isMaximized = false;
         }
@@ -514,9 +517,10 @@ export class PrismToolbar {
     toggleLineWrap(instance) {
         const oldIsLineWrapped = instance.codeElem.classList.contains('jCodeForceLineWrap');
         instance.codeElem.classList.toggle('jCodeForceLineWrap');
-        instance.toolbarElem
-            ?.querySelector('.jPTbrTogLWrap')
-            ?.setAttribute('data-linewrapon', (!oldIsLineWrapped).toString());
+        assertElem(instance.toolbarElem.querySelector('.jPTbrTogLWrap')).setAttribute(
+            'data-linewrapon',
+            (!oldIsLineWrapped).toString()
+        );
     }
 
     /**
